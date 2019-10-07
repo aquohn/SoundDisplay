@@ -6,7 +6,7 @@
 //
 //  LAB SESSION DAY (Delete where applicable): MONDAY P.M
 //
-//  STUDENT A NAME: Andrew 
+//  STUDENT A NAME: Andrew Lau
 //  STUDENT A MATRICULATION NUMBER: 
 //
 //  STUDENT B NAME: John Khoo
@@ -25,7 +25,8 @@ module Top_Student (
     
     input audio_sw,           // Switch to use microphone (1) or to use zero signal (0)
     
-    input oled_reset        // Reset signal for OLED
+    input oled_reset,        // Reset signal for OLED
+    output [7:0] JB        // Control signals to OLED
     );
 
     reg [11:0] mic_in;
@@ -45,13 +46,13 @@ module Top_Student (
     
     assign oled_reset_signal = oled_reset_ff & oled_reset_pipe;
     clk_oled clk_oled_mod (.clk_in(clk_in), .clk_out(clk20k));
-    Oled_Display oled_display (.clk(clk6p25m), .reset(oled_reset_pipe), .pixel_data(oled_data));
+    Oled_Display oled_display (.clk(clk6p25m), .reset(oled_reset_pipe), .pixel_data(oled_data),
+    .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]));
     
     always @(posedge clk6p25m) begin
         oled_reset_pipe <= oled_reset;
         oled_reset_ff <= oled_reset_pipe;
     end
-        
     
     /*
     input clk, reset;
