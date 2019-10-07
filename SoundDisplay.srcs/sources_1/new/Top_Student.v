@@ -29,7 +29,7 @@ module Top_Student (
     output [7:0] JB        // Control signals to OLED
     );
 
-    reg [11:0] mic_in;
+    wire [11:0] mic_in;
     reg [15:0] oled_data;
     reg oled_reset_pipe, oled_reset_ff;
     wire clk20k, clk6p25m, oled_reset_signal;
