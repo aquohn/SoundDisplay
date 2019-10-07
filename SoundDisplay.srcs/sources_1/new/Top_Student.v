@@ -38,14 +38,14 @@ module Top_Student (
         oled_data = 16'h07E0;
     end
     
-    clk_voice clk_voice_mod (.clk_in(clk_in), .clk_out(clk6p25m));
+    clk_voice clk_voice_mod (.clk_in(clk_in), .clk_out(clk20k));
     Audio_Capture audio_capture (.CLK(clk_in), .cs(clk6p25m), .MISO(J_MIC3_Pin3),
     .clk_samp(J_MIC3_Pin1), .sclk(J_MIC3_Pin4), .sample(mic_in));
     
     //TODO: Complete audio part here...
     
-    assign oled_reset_signal = oled_reset_ff & oled_reset_pipe;
-    clk_oled clk_oled_mod (.clk_in(clk_in), .clk_out(clk20k));
+    assign oled_reset_signal = ~oled_reset_ff & oled_reset_pipe;
+    clk_oled clk_oled_mod (.clk_in(clk_in), .clk_out(clk6p25m));
     Oled_Display oled_display (.clk(clk6p25m), .reset(oled_reset_pipe), .pixel_data(oled_data),
     .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]));
     
