@@ -14,6 +14,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
+// JA - microphone, JB - video
 
 module Top_Student (
     input clk_in,         // 100MHz board clock
@@ -29,8 +30,8 @@ module Top_Student (
 
     reg [11:0] mic_in;
     reg [15:0] oled_data;
-    reg oled_reset_pipe;
-    wire clk20k, clk6p25m;
+    reg oled_reset_pipe, oled_reset_ff;
+    wire clk20k, clk6p25m, oled_reset_signal;
     
     initial begin
         oled_data = 16'h07E0;
@@ -42,9 +43,15 @@ module Top_Student (
     
     //TODO: Complete audio part here...
     
+    assign oled_reset_signal = oled_reset_ff & oled_reset_pipe;
     clk_oled clk_oled_mod (.clk_in(clk_in), .clk_out(clk20k));
-    Oled_Display oled_display (.clk(clk6p25m), .reset(oled_reset), .pixel_data(oled_data));
+    Oled_Display oled_display (.clk(clk6p25m), .reset(oled_reset_pipe), .pixel_data(oled_data));
     
+    always @(posedge clk6p25m) begin
+        oled_reset_pipe <= oled_reset;
+        oled_reset_ff <= oled_reset_pipe;
+    end
+        
     
     /*
     input clk, reset;
