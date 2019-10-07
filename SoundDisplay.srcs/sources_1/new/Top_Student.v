@@ -26,12 +26,25 @@ module Top_Student (
     );
 
     reg [11:0] mic_in;
-    wire clk_v;
+    wire clk20k, clk6p25m;
     
-    clk_voice clk_voice_mod (.clk_in(clk_in), .clk_out(clk_v));
-    Audio_Capture mic_capture (.CLK(clk_in), .cs(clk_v), .MISO(J_MIC3_Pin3),
+    clk_voice clk_voice_mod (.clk_in(clk_in), .clk_out(clk6p25m));
+    Audio_Capture mic_capture (.CLK(clk_in), .cs(clk6p25m), .MISO(J_MIC3_Pin3),
     .clk_samp(J_MIC3_Pin1), .sclk(J_MIC3_Pin4), .sample(mic_in));
     
     //TODO: Complete audio part here...
+    
+    
+    
+    /*
+    input clk, reset;
+    output frame_begin, sending_pixels, sample_pixel;
+    output [PixelCountWidth-1:0] pixel_index;
+    input [15:0] pixel_data;
+    output cs, sdin, sclk, d_cn, resn, vccen, pmoden;
+    output [4:0] teststate;
+    */
+    
+    
 
 endmodule

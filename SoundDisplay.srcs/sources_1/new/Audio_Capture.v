@@ -28,7 +28,7 @@ module Audio_Capture(
     input MISO,                 // J_MIC3_Pin3, serial mic input
     output clk_samp,            // J_MIC3_Pin1
     output reg sclk,            // J_MIC3_Pin4, MIC3 serial clock
-    output reg [11:0] sample     // 12-bit audio sample data
+    output reg [11:0]sample     // 12-bit audio sample data
     );
     
     reg [11:0]count2 = 0;
