@@ -30,14 +30,10 @@ module Top_Student (
     output [7:0] JB        // Control signals to OLED
     );
 
-    wire [11:0] mic_in;
-    reg [15:0] oled_data;
+    wire [11:0] mic_in; //data from mic
+    wire [15:0] oled_data;
     reg oled_reset_pipe, oled_reset_ff;
     wire clk20k, clk6p25m, oled_reset_signal;
-    
-    initial begin
-        oled_data = 16'h07E0;
-    end
     
     //Audio part
     clk_voice clk_voice_mod (.clk_in(clk_in), .clk_out(clk20k));
@@ -48,7 +44,7 @@ module Top_Student (
     assign led = (sw0 == 1) ? 0 : mic_in;
     
     //oled part
-    /*assign oled_reset_signal = ~oled_reset_ff & oled_reset_pipe;
+    assign oled_reset_signal = ~oled_reset_ff & oled_reset_pipe;
     clk_oled clk_oled_mod (.clk_in(clk_in), .clk_out(clk6p25m));
     Oled_Display oled_display (.clk(clk6p25m), .reset(oled_reset_pipe), .pixel_data(oled_data),
     .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]));
@@ -56,17 +52,9 @@ module Top_Student (
     always @(posedge clk6p25m) begin
         oled_reset_pipe <= oled_reset;
         oled_reset_ff <= oled_reset_pipe;
-    end*/
+    end
     
-    /*
-    input clk, reset;
-    output frame_begin, sending_pixels, sample_pixel;
-    output [PixelCountWidth-1:0] pixel_index;
-    input [15:0] pixel_data;
-    output cs, sdin, sclk, d_cn, resn, vccen, pmoden;
-    output [4:0] teststate;
-    */
+    //integration
+    assign oled_data = {11'b0, mic_in[11:7]};
     
-    
-
 endmodule
