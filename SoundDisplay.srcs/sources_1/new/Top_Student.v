@@ -32,7 +32,7 @@ module Top_Student (
     
     output [15:0] led,
     output [6:0] seg,
-    output reg [3:0] an,
+    output [3:0] an,
     output dp,
     
     output [7:0] JB        // Control signals to OLED
@@ -50,27 +50,30 @@ module Top_Student (
     wire sample_pixel;
     wire [12:0] pixel_index;
     
-    //Common part
+    //Button debouncing
     assign btnC_signal = ~btnC_ff & btnC_pipe;
     assign btnU_signal = ~btnU_ff & btnC_pipe;
     assign btnR_signal = ~btnR_ff & btnC_pipe;
     assign btnL_signal = ~btnL_ff & btnC_pipe;
     assign btnD_signal = ~btnD_ff & btnD_pipe;
     
-    //Audio part
+    //Mic setup
     clk_voice clk_voice_mod (.clk_in(clk_in), .clk_out(clk20k));
     Audio_Capture audio_capture (.CLK(clk_in), .cs(clk20k), .MISO(J_MIC3_Pin3),
         .clk_samp(J_MIC3_Pin1), .sclk(J_MIC3_Pin4), .sample(mic_in));
-    assign led = (sw[0] == 1) ? 0 : mic_in;
     
-    //oled part
+    //Oled setup
     clk_oled clk_oled_mod (.clk_in(clk_in), .clk_out(clk6p25m));
     Oled_Display oled_display (.clk(clk6p25m), .reset(btnC_signal), .pixel_data(oled_data),
     .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]),
     .sample_pixel(sample_pixel), .pixel_index(pixel_index));
     
     always @(*) begin
-    
+        case (sys_mode)
+            default: begin
+
+            end
+        endcase
     end
     
     always @(posedge clk6p25m) begin
