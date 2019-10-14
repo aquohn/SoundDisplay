@@ -4,7 +4,7 @@
 //
 //  FILL IN THE FOLLOWING INFORMATION:
 //
-//  LAB SESSION DAY (Delete where applicable): MONDAY P.M
+//  LAB SESSION DAY (Delete where applicable): MONDAY P.M.
 //
 //  STUDENT A NAME: Andrew Lau Jia Jun
 //  STUDENT A MATRICULATION NUMBER: A0182815B
@@ -31,9 +31,12 @@ module Top_Student (
     );
 
     wire [11:0] mic_in; //data from mic
-    wire [15:0] oled_data;
+    reg [15:0] oled_data;
     reg oled_reset_pipe, oled_reset_ff;
     wire clk20k, clk6p25m, oled_reset_signal;
+    
+    wire sample_pixel;
+    wire [12:0] pixel_index;
     
     //Audio part
     clk_voice clk_voice_mod (.clk_in(clk_in), .clk_out(clk20k));
@@ -47,14 +50,14 @@ module Top_Student (
     assign oled_reset_signal = ~oled_reset_ff & oled_reset_pipe;
     clk_oled clk_oled_mod (.clk_in(clk_in), .clk_out(clk6p25m));
     Oled_Display oled_display (.clk(clk6p25m), .reset(oled_reset_pipe), .pixel_data(oled_data),
-    .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]));
+    .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]),
+    .sample_pixel(sample_pixel), .pixel_index(pixel_index));
     
     always @(posedge clk6p25m) begin
         oled_reset_pipe <= oled_reset;
         oled_reset_ff <= oled_reset_pipe;
+        
+        oled_data <= (sample_pixel < 13'd96) ? {5'b00000, 6'b000000, 5'b11111} : 13'b0;
     end
-    
-    //integration
-    assign oled_data = {11'b0, mic_in[11:7]};
     
 endmodule
