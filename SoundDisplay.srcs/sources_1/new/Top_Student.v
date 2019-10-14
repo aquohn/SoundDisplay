@@ -39,7 +39,7 @@ module Top_Student (
 
     );
     
-    reg [3:0] system_mode = 4'b0000;
+    reg [3:0] sys_mode = 4'b0000;
     reg btnC_pipe, btnC_ff, btnU_pipe, btnU_ff, btnR_pipe, btnR_ff, btnL_pipe, btnL_ff, btnD_pipe, btnD_ff;
     wire btnC_signal, btnU_signal, btnR_signal, btnL_signal, btnD_signal;
     wire clk20k, clk6p25m;
@@ -69,6 +69,10 @@ module Top_Student (
     .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]),
     .sample_pixel(sample_pixel), .pixel_index(pixel_index));
     
+    always @(*) begin
+    
+    end
+    
     always @(posedge clk6p25m) begin
         btnC_pipe <= btnC;
         btnC_ff <= btnC_pipe;
@@ -80,6 +84,12 @@ module Top_Student (
         btnL_ff <= btnL_pipe;
         btnD_pipe <= btnD;
         btnD_ff <= btnD_pipe;
+        
+        if (btnD_signal) begin
+            sys_mode <= (sys_mode == 4'b0000) ? 4'b1111 : sys_mode - 1;
+        end else if (btnU_signal) begin
+            sys_mode <= (sys_mode == 4'b1111) ? 4'b0000 : sys_mode + 1;
+        end            
         
         oled_data <= (pixel_index < 13'd96) ? {5'b00000, 6'b000000, 5'b11111} : 13'b0;
     end
