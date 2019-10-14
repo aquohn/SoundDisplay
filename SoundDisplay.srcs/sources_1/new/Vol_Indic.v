@@ -23,7 +23,11 @@
 module Vol_Indic(
     input sw,
     input [11:0] mic_in,
-    output [11:0] led
+    output [11:0] led,
+    output reg [15:0] oled_data,
+    output reg [6:0] seg,
+    output reg [3:0] an,
+    output reg dp
     );
     
     assign led = (sw == 1) ? 0 : mic_in;
