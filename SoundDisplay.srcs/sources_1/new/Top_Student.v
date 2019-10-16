@@ -47,6 +47,7 @@ module Top_Student (
     
     wire [11:0] mic_in; //data from mic
     wire chosen_clk;
+    wire [3:0] an1, an2; 
     
     reg [15:0] oled_data;
     wire frame_begin;
@@ -83,8 +84,12 @@ module Top_Student (
     //freq_switch choose_freq (.SW(sw[11:10]), .CLOCK(clk20k), .chosen_clk(chosen_clk));
     
     // Basic functionality module
-    Vol_Indic vol_indic (.in_CLK(clk20k), .sw(sw[15:14]), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
+    Vol_Indic vol_indic (.in_CLK(clk20k), .sw(sw[15:9]), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
             .an(an_basic), .dp(dp_basic));
+    
+         
+    //assign an1 = (sw[13] == 1) ? 4'b1011 : (sw[12] == 1) ? 4'b0111 : 4'b1101;
+    //assign an2 = (sw[13] == 1) ? 4'b1101 : (sw[12] == 1) ? 4'b1011 : 4'b1110;
 
     // combinational always block; ensure every case gives a value for every one of:
     // led, oled_data, seg, an, dp 

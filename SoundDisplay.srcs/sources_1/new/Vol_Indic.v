@@ -21,7 +21,7 @@
 
 module Vol_Indic(
     input in_CLK,
-    input [15:14]sw,
+    input [15:9]sw,
     input [11:0] mic_in,
     output reg [14:0] led,
     output reg [15:0] oled_data,
@@ -40,12 +40,31 @@ module Vol_Indic(
     
     
     always @ (posedge in_CLK) begin
-        freq_count = (freq_count == 4999) ? 0 : freq_count + 1;
+        // Enhancement feature to set sampling rate
+        if (sw[12] == 1) begin
+            freq_count = (freq_count == 1999) ? 0 : freq_count + 1;
+        end 
+        else if (sw[11] == 1) begin
+            freq_count = (freq_count == 999) ? 0 : freq_count + 1;
+        end else begin
+            freq_count = (freq_count == 4999) ? 0 : freq_count + 1;
+        end
+       
+        // Enhancement feature to set anode display pattern
+        if (sw[9] == 1) begin
+            an = (an == 4'b0111) ? 4'b1011 : 4'b0111;
+            seg = (an == 4'b0111) ? seg_tens : seg_ones;
+        end
+        else if (sw[10] == 1) begin
+            an = (an == 4'b1011) ? 4'b1101 : 4'b1011;
+            seg = (an == 4'b1011) ? seg_tens : seg_ones;
+        end 
+        else begin
+            an = (an == 4'b1101) ? 4'b1110 : 4'b1101;
+            seg = (an == 4'b1101) ? seg_tens : seg_ones;
+        end
         
-        an = (an == 4'b1101) ? 4'b1110 : 4'b1101;
-        seg = (an == 4'b1101) ? seg_tens : seg_ones;
-        
-        if (freq_count == 0 && sw[15] == 0) begin
+        if (freq_count == 0 && sw[15] == 0 && sw[13] == 0) begin
             if (sw[14] == 1) begin
                 led = 15'b0;
                     seg_tens = 7'b1000000;
