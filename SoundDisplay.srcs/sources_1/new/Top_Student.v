@@ -81,6 +81,8 @@ module Top_Student (
     Vol_Indic vol_indic (.sw(sw[15]), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
         .an(an_basic), .dp(dp_basic));
     
+    // Multiplexer to select output from chosen module
+    
     // combinational always block; ensure every case gives a value for every one of:
     // led, oled_data, seg, an, dp 
     always @(*) begin
