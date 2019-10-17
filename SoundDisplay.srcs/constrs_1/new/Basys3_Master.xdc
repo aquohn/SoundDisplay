@@ -118,35 +118,33 @@ set_property PACKAGE_PIN T17 [get_ports btnR]
 	set_property IOSTANDARD LVCMOS33 [get_ports btnR]
 set_property PACKAGE_PIN U17 [get_ports btnD]						
 	set_property IOSTANDARD LVCMOS33 [get_ports btnD]
- 
 
 
 ##Pmod Header JA
 ##Sch name = JA1
-#set_property PACKAGE_PIN J1 [get_ports {JA[0]}]					
-	#set_property IOSTANDARD LVCMOS33 [get_ports {JA[0]}]
-##Sch name = JA2
-#set_property PACKAGE_PIN L2 [get_ports {J_MIC3_Pin1}]					
-	#set_property IOSTANDARD LVCMOS33 [get_ports {J_MIC3_Pin1}]
-##Sch name = JA3
-#set_property PACKAGE_PIN J2 [get_ports {JA[2]}]					
-	#set_property IOSTANDARD LVCMOS33 [get_ports {JA[2]}]
-##Sch name = JA4
-#set_property PACKAGE_PIN G2 [get_ports {J_MIC3_Pin3}]					
-	#set_property IOSTANDARD LVCMOS33 [get_ports {J_MIC3_Pin3}]
-##Sch name = JA7
-set_property PACKAGE_PIN H1 [get_ports {J_MIC3_Pin1}]				
+set_property PACKAGE_PIN J1 [get_ports {J_MIC3_Pin1}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {J_MIC3_Pin1}]
+####Sch name = JA2
+##set_property PACKAGE_PIN L2 [get_ports {JA[1]}]					
+#	#set_property IOSTANDARD LVCMOS33 [get_ports {JA[1]}]
+##Sch name = JA3
+set_property PACKAGE_PIN J2 [get_ports {J_MIC3_Pin3}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {J_MIC3_Pin3}]
+###Sch name = JA4
+set_property PACKAGE_PIN G2 [get_ports {J_MIC3_Pin4}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {J_MIC3_Pin4}]
+##Sch name = JA7
+#set_property PACKAGE_PIN H1 [get_ports {JA[4]}]					
+	#set_property IOSTANDARD LVCMOS33 [get_ports {JA[4]}]
 ##Sch name = JA8
 #set_property PACKAGE_PIN K2 [get_ports {JA[5]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {JA[5]}]
 ##Sch name = JA9
-set_property PACKAGE_PIN H2 [get_ports {J_MIC3_Pin3}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {J_MIC3_Pin3}]
+#set_property PACKAGE_PIN H2 [get_ports {JA[6]}]					
+	#set_property IOSTANDARD LVCMOS33 [get_ports {JA[6]}]
 ##Sch name = JA10
-set_property PACKAGE_PIN G3 [get_ports {J_MIC3_Pin4}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {J_MIC3_Pin4}]
-#1,3,4
+#set_property PACKAGE_PIN G3 [get_ports {JA[7]}]					
+	#set_property IOSTANDARD LVCMOS33 [get_ports {JA[7]}]
 
 
 ##Pmod Header JB

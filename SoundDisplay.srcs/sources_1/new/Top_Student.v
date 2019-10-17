@@ -30,11 +30,12 @@ module Top_Student (
     input btnU,
     input btnD,
     
-    output reg [15:0] led,
+    output reg [14:0] led,
     output reg [6:0] seg,
     output reg [3:0] an,
     output reg dp,
     
+   
     output [7:0] JB        // Control signals to OLED
     );
     
@@ -45,13 +46,15 @@ module Top_Student (
     parameter MODE_MAX = 4'b1111; // change to actual number of modes later
     
     wire [11:0] mic_in; //data from mic
+    wire chosen_clk;
+    wire [3:0] an1, an2; 
     
     reg [15:0] oled_data;
     wire frame_begin;
     wire [12:0] pixel_index;
     
     //output from basic functionality
-    wire [11:0] led_basic;
+    wire [14:0] led_basic;
     wire [6:0] seg_basic;
     wire [3:0] an_basic;
     wire dp_basic;
@@ -70,25 +73,30 @@ module Top_Student (
     clk_voice clk_voice_mod (.clk_in(clk_in), .clk_out(clk20k));
     Audio_Capture audio_capture (.CLK(clk_in), .cs(clk20k), .MISO(J_MIC3_Pin3),
         .clk_samp(J_MIC3_Pin1), .sclk(J_MIC3_Pin4), .sample(mic_in));
-    
+   
     // Oled setup
     clk_oled clk_oled_mod (.clk_in(clk_in), .clk_out(clk6p25m));
     Oled_Display oled_display (.clk(clk6p25m), .reset(btnC_signal), .pixel_data(oled_data),
         .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]),
         .frame_begin(frame_begin), .pixel_index(pixel_index));
+        
+    // Frequency change 
+    //freq_switch choose_freq (.SW(sw[11:10]), .CLOCK(clk20k), .chosen_clk(chosen_clk));
     
     // Basic functionality module
-    Vol_Indic vol_indic (.sw(sw[15]), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
-        .an(an_basic), .dp(dp_basic));
+    Vol_Indic vol_indic (.in_CLK(clk20k), .sw(sw[15:9]), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
+            .an(an_basic), .dp(dp_basic));
     
     // Multiplexer to select output from chosen module
-    
-    // combinational always block; ensure every case gives a value for every one of:
+    //
+    // This is a combinational always block; ensure every case gives a value for
+    // all of these signals:
     // led, oled_data, seg, an, dp 
     always @(*) begin
         case (sys_mode)
             default: begin //default to basic functionality
                 led = {4'b0000, led_basic};
+                //led = led_basic;
                 oled_data = oled_basic;
                 seg = seg_basic;
                 an = an_basic;
@@ -115,5 +123,4 @@ module Top_Student (
             sys_mode <= (sys_mode == MODE_MAX) ? 4'b0000 : sys_mode + 1;
         end
     end
-    
 endmodule
