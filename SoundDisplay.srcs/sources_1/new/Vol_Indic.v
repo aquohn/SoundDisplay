@@ -39,32 +39,32 @@ module Vol_Indic(
     reg [12:0] freq_count = 0;
     
     always @ (posedge in_CLK) begin
-        // Enhancement feature to set sampling rate
+        // Enhancement feature to set sampling frequency
         if (sw[12] == 1) begin
-            freq_count <= (freq_count == 1999) ? 0 : freq_count + 1;
+            freq_count <= (freq_count == 1999) ? 0 : freq_count + 1; // 5Hz frequency
         end 
         else if (sw[11] == 1) begin
-            freq_count <= (freq_count == 999) ? 0 : freq_count + 1;
+            freq_count <= (freq_count == 999) ? 0 : freq_count + 1; // 10Hz frequency
         end else begin
-            freq_count <= (freq_count == 4999) ? 0 : freq_count + 1;
+            freq_count <= (freq_count == 4999) ? 0 : freq_count + 1; // 2Hz frequency
         end
        
         // Enhancement feature to set anode display pattern
         if (sw[9] == 1) begin
             an <= (an == 4'b0111) ? 4'b1011 : 4'b0111;
-            seg <= (an == 4'b0111) ? seg_tens : seg_ones;
+            seg <= (an == 4'b0111) ? seg_ones : seg_tens; // Using the first 2 anodes from the left
         end
         else if (sw[10] == 1) begin
             an <= (an == 4'b1011) ? 4'b1101 : 4'b1011;
-            seg <= (an == 4'b1011) ? seg_tens : seg_ones;
+            seg <= (an == 4'b1011) ? seg_ones : seg_tens; // Using the middle 2 anodes
         end 
         else begin
             an <= (an == 4'b1101) ? 4'b1110 : 4'b1101;
-            seg <= (an == 4'b1101) ? seg_tens : seg_ones;
+            seg <= (an == 4'b1101) ? seg_ones : seg_tens; // Using the right 2 anodes
         end
         
         if (freq_count == 0 && sw[15] == 0 && sw[13] == 0) begin
-            if (sw[14] == 1) begin
+            if (sw[14] == 1) begin // Set the reading to 0
                 led <= 15'b0;
                     seg_tens <= 7'b1000000;
                     seg_ones <= 7'b1000000;
@@ -147,13 +147,13 @@ module Vol_Indic(
                 seg_ones <= 7'b0110000;
             end
             
-            else if (peak_intensity >= 2184) begin
+            else if (peak_intensity >= 2200) begin
                 led <= 15'b000000000000011;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b0100100;
             end
 
-            else if (peak_intensity >= 2048) begin
+            else if (peak_intensity >= 2070) begin
                 led <= 15'b000000000000001;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b1111001;
@@ -165,12 +165,13 @@ module Vol_Indic(
                 seg_ones <= 7'b1000000;
             end
         end
-        else if (sw[15] == 1) begin
+        else if (sw[15] == 1) begin // MUX to read from mic_in instead of the peak intensity
             led <= mic_in;
             seg_tens <= 7'b1111111;
             seg_ones <= 7'b1111111;
         end
         
+        // Find the peak intensity of the audio signal by using find max
         peak_intensity <= (freq_count == 0) ? 0 : (mic_in > peak_intensity) ? mic_in[11:0] : peak_intensity[11:0];
     end
 endmodule
