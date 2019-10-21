@@ -34,7 +34,6 @@ module Top_Student (
     output reg [6:0] seg,
     output reg [3:0] an,
     output reg dp,
-    
    
     output [7:0] JB        // Control signals to OLED
     );
@@ -52,6 +51,8 @@ module Top_Student (
     reg [15:0] oled_data;
     wire frame_begin;
     wire [12:0] pixel_index;
+    wire [6:0] x;
+    wire [5:0] y;
     
     //output from basic functionality
     wire [14:0] led_basic;
@@ -79,6 +80,7 @@ module Top_Student (
     Oled_Display oled_display (.clk(clk6p25m), .reset(btnC_signal), .pixel_data(oled_data),
         .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]),
         .frame_begin(frame_begin), .pixel_index(pixel_index));
+    Coord_Sys coord_sys (.pixel_index(pixel_index), .x(x), .y(y));
         
     // Frequency change 
     //freq_switch choose_freq (.SW(sw[11:10]), .CLOCK(clk20k), .chosen_clk(chosen_clk));
@@ -86,6 +88,8 @@ module Top_Student (
     // Basic functionality module
     Vol_Indic vol_indic (.in_CLK(clk20k), .sw(sw[15:9]), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
             .an(an_basic), .dp(dp_basic));
+            
+    // Any additional modules here
     
     // Multiplexer to select output from chosen module
     //
@@ -96,7 +100,6 @@ module Top_Student (
         case (sys_mode)
             default: begin //default to basic functionality
                 led = {4'b0000, led_basic};
-                //led = led_basic;
                 oled_data = oled_basic;
                 seg = seg_basic;
                 an = an_basic;

@@ -21,7 +21,7 @@
 
 module Vol_Indic(
     input in_CLK,
-    input [15:9]sw,
+    input [15:9] sw,
     input [11:0] mic_in,
     output reg [14:0] led,
     output reg [15:0] oled_data,
