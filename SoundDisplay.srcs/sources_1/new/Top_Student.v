@@ -44,15 +44,28 @@ module Top_Student (
     wire clk20k, clk6p25m;
     parameter MODE_MAX = 4'b1111; // change to actual number of modes later
     
+    // signals for mic
     wire [11:0] mic_in; //data from mic
     wire chosen_clk;
     wire [3:0] an1, an2; 
     
+    // signals for oled
     reg [15:0] oled_data;
     wire frame_begin;
     wire [12:0] pixel_index;
     wire [6:0] x;
     wire [5:0] y;
+    
+    // global macros for oled
+    `define OLED_PIXEL_END 12'd6143
+    `define OLED_HEIGHT 64
+    `define OLED_WIDTH 96
+    `define OLED_RED {5'd31, 6'd0, 5'd0} 
+    `define OLED_YELLOW {5'd31, 6'd63, 5'd0}
+    `define OLED_GREEN {5'd0, 6'd63, 5'd0}
+    `define OLED_BLUE {5'd0, 6'd0, 5'd31}
+    `define OLED_WHITE {5'd31, 6'd63, 5'd31}
+    `define OLED_BLACK {5'd0, 6'd0, 5'd0}
     
     //output from basic functionality
     wire [14:0] led_basic;
@@ -87,7 +100,7 @@ module Top_Student (
     
     // Basic functionality module
     Vol_Indic vol_indic (.in_CLK(clk20k), .sw(sw[15:9]), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
-            .an(an_basic), .dp(dp_basic));
+            .an(an_basic), .dp(dp_basic), .x(x), .y(y));
             
     // Any additional modules here
     

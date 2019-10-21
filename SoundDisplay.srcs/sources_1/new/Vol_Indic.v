@@ -23,6 +23,8 @@ module Vol_Indic(
     input in_CLK,
     input [15:9] sw,
     input [11:0] mic_in,
+    input [6:0] x,
+    input [5:0] y,
     output reg [14:0] led,
     output reg [15:0] oled_data,
     output reg [6:0] seg,
@@ -37,6 +39,13 @@ module Vol_Indic(
     reg [6:0] seg_ones = 7'b0;
     
     reg [12:0] freq_count = 0;
+    
+    /**
+     * sw[12]: 5Hz frequency
+     * sw[11]: 10Hz frequency
+     * sw[14]: force readout to 0
+     * sw[15]: 
+     */
     
     always @ (posedge in_CLK) begin
         // Enhancement feature to set sampling frequency
@@ -66,9 +75,10 @@ module Vol_Indic(
         if (freq_count == 0 && sw[15] == 0 && sw[13] == 0) begin
             if (sw[14] == 1) begin // Set the reading to 0
                 led <= 15'b0;
-                    seg_tens <= 7'b1000000;
-                    seg_ones <= 7'b1000000;
-                end
+                seg_tens <= 7'b1000000;
+                seg_ones <= 7'b1000000;
+            end
+            
             else if (peak_intensity >= 3954) begin
                 led <= 15'b111111111111111;
                 seg_tens <= 7'b1111001;
@@ -170,6 +180,12 @@ module Vol_Indic(
             seg_tens <= 7'b1111111;
             seg_ones <= 7'b1111111;
         end
+        
+        oled_data <= `OLED_BLACK;
+        if (x > 32 && x < 64) begin
+            if (y > 10 && y < 20) begin
+                oled_data <= `OLED_GREEN;
+            end 
         
         // Find the peak intensity of the audio signal by using find max
         peak_intensity <= (freq_count == 0) ? 0 : (mic_in > peak_intensity) ? mic_in[11:0] : peak_intensity[11:0];

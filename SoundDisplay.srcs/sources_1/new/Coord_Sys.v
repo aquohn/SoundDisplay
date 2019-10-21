@@ -25,11 +25,8 @@ module Coord_Sys(
     input [6:0] x,
     input [5:0] y
     );
-    
-    parameter OLED_HEIGHT = 64;
-    parameter OLED_WIDTH = 96;
-    
-    assign x = pixel_index % OLED_WIDTH;
-    assign y = pixel_index / OLED_HEIGHT;
+
+    assign x = pixel_index % `OLED_WIDTH;
+    assign y = pixel_index / `OLED_HEIGHT;
     
 endmodule
