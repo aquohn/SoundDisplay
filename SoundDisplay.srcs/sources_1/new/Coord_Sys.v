@@ -22,11 +22,11 @@
 
 module Coord_Sys(
     input [12:0] pixel_index,
-    input [6:0] x,
-    input [5:0] y
+    output [6:0] x,
+    output [5:0] y
     );
 
     assign x = pixel_index % `OLED_WIDTH;
-    assign y = pixel_index / `OLED_HEIGHT;
+    assign y = pixel_index / `OLED_WIDTH;
     
 endmodule

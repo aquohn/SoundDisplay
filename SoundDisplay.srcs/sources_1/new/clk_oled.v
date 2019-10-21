@@ -22,23 +22,30 @@
 //TODO: integrate reset?
 
 module clk_oled(
-    input clk_in,
-    output reg clk_out
+    input clk100m,
+    output reg clk6p25m,
+    output reg clk12p5m
     );
     
     reg [11:0] cnt;
     
     initial begin
         cnt = 4'd0;
-        clk_out = 1'b0; 
+        clk6p25m = 1'b0;
+        clk12p5m = 1'b0; 
     end
     
-    parameter CNT_TOGGLE = 4'd7;
+    parameter CNT_6P25_TOGGLE = 4'd7;
+    parameter CNT_12P5_TOGGLE = 4'd3;
     
-    always @(posedge clk_in) begin
-        if (cnt == CNT_TOGGLE) begin
+    always @(posedge clk100m) begin
+        if (cnt == CNT_6P25_TOGGLE) begin
             cnt <= 4'd0;
-            clk_out <= ~clk_out;
+            clk6p25m <= ~clk6p25m;
+            clk12p5m <= ~clk12p5m;    
+        end else if (cnt == CNT_12P5_TOGGLE) begin
+            clk12p5m <= ~clk12p5m;
+            cnt <= cnt + 1;
         end else begin
             cnt <= cnt + 1;
         end

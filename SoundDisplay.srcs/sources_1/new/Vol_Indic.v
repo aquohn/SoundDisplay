@@ -32,12 +32,13 @@
  */
  
 module Vol_Indic(
-    input in_CLK,
-    input [15:9] sw,
+    input mic_clk,
+    input oled_clk,
+    input [15:0] sw,
     input [11:0] mic_in,
     input [6:0] x,
     input [5:0] y,
-    output reg [14:0] led,
+    output reg [15:0] led,
     output reg [15:0] oled_data,
     output reg [6:0] seg,
     output reg [3:0] an,
@@ -46,7 +47,7 @@ module Vol_Indic(
     
     reg [12:0] counter = 0;
     reg [11:0] peak_intensity = 12'b0;
-    reg [14:0] led_reg;
+    reg [15:0] led_reg;
 
     reg [6:0] seg_tens = 7'b0;   
     reg [6:0] seg_ones = 7'b0;
@@ -57,19 +58,19 @@ module Vol_Indic(
     
     always @(*) begin
         case ({sw[1], sw[0]})
-            2'b01: begin
+            2'b01: begin //ocean
                 colour_border = {5'd4, 6'd15, 5'd11};
                 colour_bg = {5'd29, 6'd58, 5'd25};
                 colour_high = {5'd19, 6'd47, 5'd24};
                 colour_mid = {5'd3, 6'd20, 5'd18};
                 colour_low = {5'd4, 6'd15, 5'd11};                
             end
-            2'b10: begin
-                colour_border = {5'd27, 6'd41, 5'd2};
-                colour_bg = {5'd27, 6'd51, 5'd23};
-                colour_high = {5'd22, 6'd53, 5'd22};
-                colour_mid = {5'd6, 6'd50, 5'd17};
-                colour_low = {5'd13, 6'd40, 5'd17};                        
+            2'b10: begin //earth
+                colour_border = {5'd27, 6'd46, 5'd2};
+                colour_bg = {5'd29, 6'd56, 5'd21};
+                colour_high = {5'd22, 6'd58, 5'd20};
+                colour_mid = {5'd6, 6'd50, 5'd15};
+                colour_low = {5'd13, 6'd40, 5'd15};                        
             end
             2'b11: begin
                 colour_border = `OLED_WHITE;
@@ -88,7 +89,7 @@ module Vol_Indic(
         endcase
     end
     
-    always @ (posedge in_CLK) begin
+    always @ (posedge mic_clk) begin
         // Enhancement feature to set sampling frequency
         if (sw[12] == 1) begin
             freq_count <= (freq_count == 1999) ? 0 : freq_count + 1; // 5Hz frequency
@@ -222,11 +223,11 @@ module Vol_Indic(
             seg_ones <= 7'b1111111;
         end
         
-        
-        
         // Find the peak intensity of the audio signal by using find max
         peak_intensity <= (freq_count == 0) ? 0 : (mic_in > peak_intensity) ? mic_in[11:0] : peak_intensity[11:0];
-        
+    end
+    
+    always @(posedge oled_clk) begin    
         // draw screen
         oled_data <= colour_bg;
         
@@ -247,39 +248,64 @@ module Vol_Indic(
         end
 
         // draw bars
-        // change LED 
         if (~sw[3] && x >= 40 && x <= 55) begin
-            if (y >= 59 && y <= 61 & led[0]) begin
+            if (y >= 59 && y <= 61 & led_reg[0]) begin
                 oled_data <= colour_low;
-            end else if (y >= 55 && y <= 57 & led[1]) begin
+            end
+            
+            if (y >= 55 && y <= 57 & led_reg[1]) begin
                 oled_data <= colour_low;
-            end else if (y >= 51 && y <= 53 & led[2]) begin
+            end
+            
+            if (y >= 51 && y <= 53 & led_reg[2]) begin
                 oled_data <= colour_low;
-            end else if (y >= 47 && y <= 49 & led[3]) begin
+            end
+            
+            if (y >= 47 && y <= 49 & led_reg[3]) begin
                 oled_data <= colour_low;
-            end else if (y >= 43 && y <= 45 & led[4]) begin
+            end
+            
+            if (y >= 43 && y <= 45 & led_reg[4]) begin
                 oled_data <= colour_low;
-
-            end else if (y >= 39 && y <= 41 & led[5]) begin
+            end
+            
+            if (y >= 39 && y <= 41 & led_reg[5]) begin
                 oled_data <= colour_mid;
-            end else if (y >= 35 && y <= 37 & led[6]) begin
+            end
+            
+            if (y >= 35 && y <= 37 & led_reg[6]) begin
                 oled_data <= colour_mid;
-            end else if (y >= 31 && y <= 33 & led[7]) begin
+            end
+            
+            if (y >= 31 && y <= 33 & led_reg[7]) begin
                 oled_data <= colour_mid;
-            end else if (y >= 27 && y <= 29 & led[8]) begin
+            end
+            
+            if (y >= 27 && y <= 29 & led_reg[8]) begin
                 oled_data <= colour_mid;
-            end else if (y >= 23 && y <= 25 & led[9]) begin
+            end
+            
+            if (y >= 23 && y <= 25 & led_reg[9]) begin
                 oled_data <= colour_mid;
-
-            end else if (y >= 19 && y <= 21 & led[10]) begin
+            end
+            
+            if (y >= 19 && y <= 21 & led_reg[10]) begin
                 oled_data <= colour_high;
-            end else if (y >= 15 && y <= 17 & led[11]) begin
+            end
+            
+            if (y >= 15 && y <= 17 & led_reg[11]) begin
                 oled_data <= colour_high;
-            end else if (y >= 11 && y <= 13 & led[12]) begin
+            end
+            
+            if (y >= 11 && y <= 13 & led_reg[12]) begin
                 oled_data <= colour_high;
-            end else if (y >= 7 && y <= 9 & led[13]) begin
+            end
+            
+            if (y >= 7 && y <= 9 & led_reg[13]) begin
                 oled_data <= colour_high;
-            end else if (y >= 3 && y <= 5 & led[14]) begin
+            end
+            
+            if (y >= 3 && y <= 5 & led_reg[14]) begin
                 oled_data <= colour_high;
             end
         end

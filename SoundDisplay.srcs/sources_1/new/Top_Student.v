@@ -41,7 +41,7 @@ module Top_Student (
     reg [3:0] sys_mode = 4'b0000;
     reg btnC_pipe, btnC_ff, btnU_pipe, btnU_ff, btnR_pipe, btnR_ff, btnL_pipe, btnL_ff, btnD_pipe, btnD_ff;
     wire btnC_signal, btnU_signal, btnR_signal, btnL_signal, btnD_signal;
-    wire clk20k, clk6p25m;
+    wire clk20k, clk6p25m, clk12p5m;
     parameter MODE_MAX = 4'b1111; // change to actual number of modes later
     
     // signals for mic
@@ -89,7 +89,7 @@ module Top_Student (
         .clk_samp(J_MIC3_Pin1), .sclk(J_MIC3_Pin4), .sample(mic_in));
    
     // Oled setup
-    clk_oled clk_oled_mod (.clk_in(clk_in), .clk_out(clk6p25m));
+    clk_oled clk_oled_mod (.clk100m(clk_in), .clk6p25m(clk6p25m), .clk12p5m(clk12p5m));
     Oled_Display oled_display (.clk(clk6p25m), .reset(btnC_signal), .pixel_data(oled_data),
         .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]),
         .frame_begin(frame_begin), .pixel_index(pixel_index));
@@ -99,7 +99,7 @@ module Top_Student (
     //freq_switch choose_freq (.SW(sw[11:10]), .CLOCK(clk20k), .chosen_clk(chosen_clk));
     
     // Basic functionality module
-    Vol_Indic vol_indic (.in_CLK(clk20k), .sw(sw[15:9]), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
+    Vol_Indic vol_indic (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
             .an(an_basic), .dp(dp_basic), .x(x), .y(y));
             
     // Any additional modules here
