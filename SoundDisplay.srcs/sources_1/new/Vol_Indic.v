@@ -72,16 +72,16 @@ module Vol_Indic(
             2'b10: begin //earth
                 colour_border = {5'd27, 6'd46, 5'd2};
                 colour_bg = {5'd29, 6'd56, 5'd21};
-                colour_high = {5'd22, 6'd58, 5'd20};
-                colour_mid = {5'd6, 6'd50, 5'd15};
-                colour_low = {5'd13, 6'd40, 5'd15};                        
+                colour_high = {5'd22, 6'd58, 5'd15};
+                colour_mid = {5'd6, 6'd50, 5'd10};
+                colour_low = {5'd13, 6'd40, 5'd10};                        
             end
             2'b11: begin //enhancement colour scheme: sunset
-                colour_border = `OLED_WHITE;
-                colour_bg = `OLED_BLACK;
-                colour_high = `OLED_RED;
-                colour_mid = `OLED_YELLOW;
-                colour_low = `OLED_YELLOW; 
+                colour_border = {5'd31, 6'd54, 5'd22};
+                colour_bg = {5'd6, 6'd14, 5'd10};
+                colour_high = {5'd31, 6'd41, 5'd22};
+                colour_mid = {5'd21, 6'd33, 5'd20};
+                colour_low = {5'd10, 6'd21, 5'd15}; 
             end
             default: begin
                 colour_border = `OLED_WHITE;
@@ -265,16 +265,16 @@ module Vol_Indic(
         if (~sw[3] && x >= 48 - width && x < 48 + width) begin : genbars
             integer i;
             for (i = 0; i < 15; i = i + 1) begin
-
-            if (y >= (60 - 4 * i) - thickness && y <= (60 - 4 * i) + thickness & led_reg[i]) begin
-                if (i < 5) begin
-                    oled_data <= colour_low;
-                end else if (i < 10) begin
-                    oled_data <= colour_mid;
-                end else begin
-                    oled_data <= colour_high;
-                end 
+                if (y >= (60 - 4 * i) - thickness && y <= (60 - 4 * i) + thickness && led_reg[i]) begin
+                    if (i < 5) begin
+                        oled_data <= colour_low;
+                    end else if (i < 10) begin
+                        oled_data <= colour_mid;
+                    end else begin
+                        oled_data <= colour_high;
+                    end 
+                end
             end
-        end
+       end
    end
 endmodule
