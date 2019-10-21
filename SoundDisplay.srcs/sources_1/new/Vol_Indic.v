@@ -261,66 +261,19 @@ module Vol_Indic(
             endcase
         end
 
-        // draw bars
-        if (~sw[3] && x >= 48 - width && x < 48 + width) begin // even numbers - >= to <
-            if (y >= 60 - thickness && y <= 60 + thickness & led_reg[0]) begin
-                oled_data <= colour_low;
-            end
-            
-            if (y >= 56 - thickness && y <= 56 + thickness & led_reg[1]) begin
-                oled_data <= colour_low;
-            end
-            
-            if (y >= 52 - thickness && y <= 52 + thickness & led_reg[2]) begin
-                oled_data <= colour_low;
-            end
-            
-            if (y >= 48 - thickness && y <= 48 + thickness & led_reg[3]) begin
-                oled_data <= colour_low;
-            end
-            
-            if (y >= 44 - thickness && y <= 44 + thickness & led_reg[4]) begin
-                oled_data <= colour_low;
-            end
-            
-            if (y >= 40 - thickness && y <= 40 + thickness & led_reg[5]) begin
-                oled_data <= colour_mid;
-            end
-            
-            if (y >= 36 - thickness && y <= 36 + thickness & led_reg[6]) begin
-                oled_data <= colour_mid;
-            end
-            
-            if (y >= 32 - thickness && y <= 32 + thickness & led_reg[7]) begin
-                oled_data <= colour_mid;
-            end
-            
-            if (y >= 28 - thickness && y <= 28 + thickness & led_reg[8]) begin
-                oled_data <= colour_mid;
-            end
-            
-            if (y >= 24 - thickness && y <= 24 + thickness & led_reg[9]) begin
-                oled_data <= colour_mid;
-            end
-            
-            if (y >= 20 - thickness && y <= 20 + thickness & led_reg[10]) begin
-                oled_data <= colour_high;
-            end
-            
-            if (y >= 16 - thickness && y <= 16 + thickness & led_reg[11]) begin
-                oled_data <= colour_high;
-            end
-            
-            if (y >= 12 - thickness && y <= 12 + thickness & led_reg[12]) begin
-                oled_data <= colour_high;
-            end
-            
-            if (y >= 8 - thickness && y <= 8 + thickness & led_reg[13]) begin
-                oled_data <= colour_high;
-            end
-            
-            if (y >= 4 - thickness && y <= 4 + thickness & led_reg[14]) begin
-                oled_data <= colour_high;
+        // draw bars; even numbers - >= to <
+        if (~sw[3] && x >= 48 - width && x < 48 + width) begin : genbars
+            integer i;
+            for (i = 0; i < 15; i = i + 1) begin
+
+            if (y >= (60 - 4 * i) - thickness && y <= (60 - 4 * i) + thickness & led_reg[i]) begin
+                if (i < 5) begin
+                    oled_data <= colour_low;
+                end else if (i < 10) begin
+                    oled_data <= colour_mid;
+                end else begin
+                    oled_data <= colour_high;
+                end 
             end
         end
    end
