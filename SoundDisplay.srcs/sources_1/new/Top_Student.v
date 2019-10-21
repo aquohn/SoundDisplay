@@ -130,10 +130,12 @@ module Top_Student (
         btnD_pipe <= btnD;
         btnD_ff <= btnD_pipe;
         
-        if (btnD_signal) begin
-            sys_mode <= (sys_mode == 4'b0000) ? MODE_MAX : sys_mode - 1;
-        end else if (btnU_signal) begin
-            sys_mode <= (sys_mode == MODE_MAX) ? 4'b0000 : sys_mode + 1;
+        if (sw[15]) begin
+            if (btnD_signal) begin
+                sys_mode <= (sys_mode == 4'b0000) ? MODE_MAX : sys_mode - 1;
+            end else if (btnU_signal) begin
+                sys_mode <= (sys_mode == MODE_MAX) ? 4'b0000 : sys_mode + 1;
+            end
         end
     end
 endmodule
