@@ -19,6 +19,18 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * sw[0]/sw[1]: select colour theme
+ * sw[2]: select border thickness
+ * sw[3]: toggle volume bar
+ * sw[4]: toggle border
+ * sw[11]: 10Hz frequency
+ * sw[12]: 5Hz frequency
+ * sw[13]: pause
+ * sw[14]: force readout to 0
+ * sw[15]: constant LED indicator (Task 1 requirement)
+ */
+ 
 module Vol_Indic(
     input in_CLK,
     input [15:9] sw,
@@ -40,13 +52,8 @@ module Vol_Indic(
     
     reg [12:0] freq_count = 0;
     
-    /**
-     * sw[12]: 5Hz frequency
-     * sw[11]: 10Hz frequency
-     * sw[14]: force readout to 0
-     * sw[15]: 
-     */
-    
+    reg [15:0] colour_border, colour_bg, colour_high, colour_mid, colour_low;
+
     always @ (posedge in_CLK) begin
         // Enhancement feature to set sampling frequency
         if (sw[12] == 1) begin
@@ -182,10 +189,11 @@ module Vol_Indic(
         end
         
         oled_data <= `OLED_BLACK;
-        if (x > 32 && x < 64) begin
+        if (~sw[3] && x > 32 && x < 64) begin
             if (y > 10 && y < 20) begin
                 oled_data <= `OLED_GREEN;
-            end 
+            end
+        end
         
         // Find the peak intensity of the audio signal by using find max
         peak_intensity <= (freq_count == 0) ? 0 : (mic_in > peak_intensity) ? mic_in[11:0] : peak_intensity[11:0];
