@@ -56,7 +56,7 @@ module Vol_Indic(
     reg [15:0] colour_border, colour_bg, colour_high, colour_mid, colour_low;
     
     always @(*) begin
-        case (sw[1:0])
+        case ({sw[1], sw[0]})
             2'b01: begin
                 colour_border = {5'd4, 6'd15, 5'd11};
                 colour_bg = {5'd29, 6'd58, 5'd25};

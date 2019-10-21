@@ -30,7 +30,7 @@ module Top_Student (
     input btnU,
     input btnD,
     
-    output reg [14:0] led,
+    output reg [15:0] led,
     output reg [6:0] seg,
     output reg [3:0] an,
     output reg dp,
@@ -68,7 +68,7 @@ module Top_Student (
     `define OLED_BLACK {5'd0, 6'd0, 5'd0}
     
     //output from basic functionality
-    wire [14:0] led_basic;
+    wire [15:0] led_basic;
     wire [6:0] seg_basic;
     wire [3:0] an_basic;
     wire dp_basic;
