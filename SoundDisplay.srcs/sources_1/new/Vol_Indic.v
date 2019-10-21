@@ -41,6 +41,7 @@ module Vol_Indic(
     input [6:0] x,
     input [5:0] y,
     output reg [15:0] led,
+    output reg [15:0] intensity_reg,
     output reg [15:0] oled_data,
     output reg [6:0] seg,
     output reg [3:0] an,
@@ -49,7 +50,6 @@ module Vol_Indic(
     
     reg [12:0] counter = 0;
     reg [11:0] peak_intensity = 12'b0;
-    reg [15:0] led_reg;
 
     reg [6:0] seg_tens = 7'b0;   
     reg [6:0] seg_ones = 7'b0;
@@ -133,110 +133,110 @@ module Vol_Indic(
         
         if (freq_count == 0 && sw[13] == 0) begin
             if (sw[14] == 1) begin // Set the reading to 0
-                led_reg <= 15'b0;
+                intensity_reg <= 15'b0;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b1000000;
             end
             
             else if (peak_intensity >= 3954) begin
-                led_reg <= 15'b111111111111111;
+                intensity_reg <= 15'b111111111111111;
                 seg_tens <= 7'b1111001;
                 seg_ones <= 7'b0010010;
             end
             
             else if (peak_intensity >= 3818) begin
-                led_reg <= 15'b011111111111111;
+                intensity_reg <= 15'b011111111111111;
                 seg_tens <= 7'b1111001;
                 seg_ones <= 7'b0011001;
             end
             
             else if (peak_intensity >= 3682) begin
-                led_reg <= 15'b001111111111111;
+                intensity_reg <= 15'b001111111111111;
                 seg_tens <= 7'b1111001;
                 seg_ones <= 7'b0110000;
             end
             
             else if (peak_intensity >= 3545) begin
-                led_reg <= 15'b000111111111111;
+                intensity_reg <= 15'b000111111111111;
                 seg_tens <= 7'b1111001;
                 seg_ones <= 7'b0100100;
             end
             
             else if (peak_intensity >= 3409) begin
-                led_reg <= 15'b000011111111111;
+                intensity_reg <= 15'b000011111111111;
                 seg_tens <= 7'b1111001;
                 seg_ones <= 7'b1111001;
             end
             
             else if (peak_intensity >= 3273) begin
-                led_reg <= 15'b000001111111111;
+                intensity_reg <= 15'b000001111111111;
                 seg_tens <= 7'b1111001;
                 seg_ones <= 7'b1000000;
             end
             
             else if (peak_intensity >= 3137) begin
-                led_reg <= 15'b000000111111111;
+                intensity_reg <= 15'b000000111111111;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b0011000;
             end
             
             else if (peak_intensity >= 3000) begin
-                led_reg <= 15'b000000011111111;
+                intensity_reg <= 15'b000000011111111;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b0000000;
             end
             
             else if (peak_intensity >= 2864) begin
-                led_reg <= 15'b000000001111111;
+                intensity_reg <= 15'b000000001111111;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b1111000;
             end
             
             else if (peak_intensity >= 2728) begin
-                led_reg <= 15'b000000000111111;
+                intensity_reg <= 15'b000000000111111;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b0000010;
             end
             
             else if (peak_intensity >= 2592) begin
-                led_reg <= 15'b000000000011111;
+                intensity_reg <= 15'b000000000011111;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b0010010;
             end
             
             else if (peak_intensity >= 2456) begin
-                led_reg <= 15'b000000000001111;
+                intensity_reg <= 15'b000000000001111;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b0011001;
             end
             
             else if (peak_intensity >= 2320) begin
-                led_reg <= 15'b000000000000111;
+                intensity_reg <= 15'b000000000000111;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b0110000;
             end
             
             else if (peak_intensity >= 2200) begin
-                led_reg <= 15'b000000000000011;
+                intensity_reg <= 15'b000000000000011;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b0100100;
             end
 
             else if (peak_intensity >= 2070) begin
-                led_reg <= 15'b000000000000001;
+                intensity_reg <= 15'b000000000000001;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b1111001;
             end
             
             else begin
-                led_reg <= 15'b000000000000000;
+                intensity_reg <= 15'b000000000000000;
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b1000000;
             end
         end
         
         if (sw[15] == 0) begin
-            led <= led_reg;
+            led <= intensity_reg;
         end else begin // MUX to read from mic_in instead of the peak intensity
             led <= mic_in;
             seg_tens <= 7'b1111111;
@@ -268,7 +268,7 @@ module Vol_Indic(
         if (~sw[3] && x >= 48 - width && x < 48 + width) begin : genbars
             integer i;
             for (i = 0; i < 15; i = i + 1) begin
-                if (y >= (60 - 4 * i) - thickness && y <= (60 - 4 * i) + thickness && led_reg[i]) begin
+                if (y >= (60 - 4 * i) - thickness && y <= (60 - 4 * i) + thickness && intensity_reg[i]) begin
                     if (i < 5) begin
                         oled_data <= colour_low;
                     end else if (i < 10) begin

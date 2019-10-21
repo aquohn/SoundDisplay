@@ -43,6 +43,7 @@ module Top_Student (
     wire btnC_signal, btnU_signal, btnR_signal, btnL_signal, btnD_signal;
     wire clk20k, clk6p25m, clk12p5m;
     parameter MODE_MAX = 4'b1111; // change to actual number of modes later
+    wire [15:0] intensity_reg;
     
     // signals for mic
     wire [11:0] mic_in; //data from mic
@@ -97,9 +98,10 @@ module Top_Student (
     
     // Basic functionality module
     Vol_Indic vol_indic (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
-            .an(an_basic), .dp(dp_basic), .x(x), .y(y));
+            .an(an_basic), .dp(dp_basic), .x(x), .y(y), .intensity_reg(intensity_reg));
             
-    // Any additional modules here
+    // Fractal visualiser module
+    
     
     // Multiplexer to select output from chosen module
     //
