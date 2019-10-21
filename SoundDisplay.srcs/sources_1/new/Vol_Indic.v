@@ -226,7 +226,18 @@ module Vol_Indic(
         
         // draw border
         if (~sw[4]) begin
-            
+            case (sw[2]) 
+                1'b0: begin
+                    if (x == 0 || x == 95 || y == 0 || y == 63) begin
+                        oled_data <= colour_border;
+                    end
+                end
+                1'b1: begin
+                    if (x <= 2 || x >= 93 || y <= 2 || y >= 61) begin
+                        oled_data <= colour_border;
+                    end
+                end
+            endcase
         end
 
         // draw bars
@@ -268,4 +279,5 @@ module Vol_Indic(
         // Find the peak intensity of the audio signal by using find max
         peak_intensity <= (freq_count == 0) ? 0 : (mic_in > peak_intensity) ? mic_in[11:0] : peak_intensity[11:0];
     end
+
 endmodule
