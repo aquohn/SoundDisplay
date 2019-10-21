@@ -24,6 +24,8 @@
  * sw[2]: select border thickness
  * sw[3]: toggle volume bar
  * sw[4]: toggle border
+ * sw[5]: toggle bar thickness
+ * sw[6]: toggle bar width
  * sw[11]: 10Hz frequency
  * sw[12]: 5Hz frequency
  * sw[13]: pause
@@ -55,6 +57,8 @@ module Vol_Indic(
     reg [12:0] freq_count = 0;
     
     reg [15:0] colour_border, colour_bg, colour_high, colour_mid, colour_low;
+    reg thickness;
+    reg [4:0] width;
     
     always @(*) begin
         case ({sw[1], sw[0]})
@@ -72,7 +76,7 @@ module Vol_Indic(
                 colour_mid = {5'd6, 6'd50, 5'd15};
                 colour_low = {5'd13, 6'd40, 5'd15};                        
             end
-            2'b11: begin
+            2'b11: begin //enhancement colour scheme: sunset
                 colour_border = `OLED_WHITE;
                 colour_bg = `OLED_BLACK;
                 colour_high = `OLED_RED;
@@ -87,6 +91,16 @@ module Vol_Indic(
                 colour_low = `OLED_GREEN;                    
             end    
         endcase
+        
+        case (sw[5])
+            1'b0: thickness = 1'b1;
+            1'b1: thickness = 1'b0;
+        endcase
+        
+        case (sw[6])
+            1'b0: width = 5'd8;
+            1'b1: width = 5'd24;
+        endcase        
     end
     
     always @ (posedge mic_clk) begin
@@ -248,64 +262,64 @@ module Vol_Indic(
         end
 
         // draw bars
-        if (~sw[3] && x >= 40 && x <= 55) begin
-            if (y >= 59 && y <= 61 & led_reg[0]) begin
+        if (~sw[3] && x >= 48 - width && x < 48 + width) begin // even numbers - >= to <
+            if (y >= 60 - thickness && y <= 60 + thickness & led_reg[0]) begin
                 oled_data <= colour_low;
             end
             
-            if (y >= 55 && y <= 57 & led_reg[1]) begin
+            if (y >= 56 - thickness && y <= 56 + thickness & led_reg[1]) begin
                 oled_data <= colour_low;
             end
             
-            if (y >= 51 && y <= 53 & led_reg[2]) begin
+            if (y >= 52 - thickness && y <= 52 + thickness & led_reg[2]) begin
                 oled_data <= colour_low;
             end
             
-            if (y >= 47 && y <= 49 & led_reg[3]) begin
+            if (y >= 48 - thickness && y <= 48 + thickness & led_reg[3]) begin
                 oled_data <= colour_low;
             end
             
-            if (y >= 43 && y <= 45 & led_reg[4]) begin
+            if (y >= 44 - thickness && y <= 44 + thickness & led_reg[4]) begin
                 oled_data <= colour_low;
             end
             
-            if (y >= 39 && y <= 41 & led_reg[5]) begin
+            if (y >= 40 - thickness && y <= 40 + thickness & led_reg[5]) begin
                 oled_data <= colour_mid;
             end
             
-            if (y >= 35 && y <= 37 & led_reg[6]) begin
+            if (y >= 36 - thickness && y <= 36 + thickness & led_reg[6]) begin
                 oled_data <= colour_mid;
             end
             
-            if (y >= 31 && y <= 33 & led_reg[7]) begin
+            if (y >= 32 - thickness && y <= 32 + thickness & led_reg[7]) begin
                 oled_data <= colour_mid;
             end
             
-            if (y >= 27 && y <= 29 & led_reg[8]) begin
+            if (y >= 28 - thickness && y <= 28 + thickness & led_reg[8]) begin
                 oled_data <= colour_mid;
             end
             
-            if (y >= 23 && y <= 25 & led_reg[9]) begin
+            if (y >= 24 - thickness && y <= 24 + thickness & led_reg[9]) begin
                 oled_data <= colour_mid;
             end
             
-            if (y >= 19 && y <= 21 & led_reg[10]) begin
+            if (y >= 20 - thickness && y <= 20 + thickness & led_reg[10]) begin
                 oled_data <= colour_high;
             end
             
-            if (y >= 15 && y <= 17 & led_reg[11]) begin
+            if (y >= 16 - thickness && y <= 16 + thickness & led_reg[11]) begin
                 oled_data <= colour_high;
             end
             
-            if (y >= 11 && y <= 13 & led_reg[12]) begin
+            if (y >= 12 - thickness && y <= 12 + thickness & led_reg[12]) begin
                 oled_data <= colour_high;
             end
             
-            if (y >= 7 && y <= 9 & led_reg[13]) begin
+            if (y >= 8 - thickness && y <= 8 + thickness & led_reg[13]) begin
                 oled_data <= colour_high;
             end
             
-            if (y >= 3 && y <= 5 & led_reg[14]) begin
+            if (y >= 4 - thickness && y <= 4 + thickness & led_reg[14]) begin
                 oled_data <= colour_high;
             end
         end
