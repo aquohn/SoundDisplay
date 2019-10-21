@@ -104,6 +104,9 @@ module Vol_Indic(
     end
     
     always @ (posedge mic_clk) begin
+        // Find the peak intensity of the audio signal by using find max
+        peak_intensity <= (freq_count == 0) ? 0 : (mic_in > peak_intensity) ? mic_in[11:0] : peak_intensity[11:0];
+    
         // Enhancement feature to set sampling frequency
         if (sw[12] == 1) begin
             freq_count <= (freq_count == 1999) ? 0 : freq_count + 1; // 5Hz frequency
@@ -128,7 +131,7 @@ module Vol_Indic(
             seg <= (an == 4'b1101) ? seg_ones : seg_tens; // Using the right 2 anodes
         end
         
-        if (freq_count == 0 && sw[15] == 0 && sw[13] == 0) begin
+        if (freq_count == 0 && sw[13] == 0) begin
             if (sw[14] == 1) begin // Set the reading to 0
                 led_reg <= 15'b0;
                 seg_tens <= 7'b1000000;
@@ -230,15 +233,15 @@ module Vol_Indic(
                 seg_tens <= 7'b1000000;
                 seg_ones <= 7'b1000000;
             end
+        end
+        
+        if (sw[15] == 0) begin
             led <= led_reg;
-        end else if (sw[15] == 1) begin // MUX to read from mic_in instead of the peak intensity
+        end else begin // MUX to read from mic_in instead of the peak intensity
             led <= mic_in;
             seg_tens <= 7'b1111111;
             seg_ones <= 7'b1111111;
         end
-        
-        // Find the peak intensity of the audio signal by using find max
-        peak_intensity <= (freq_count == 0) ? 0 : (mic_in > peak_intensity) ? mic_in[11:0] : peak_intensity[11:0];
     end
     
     always @(posedge oled_clk) begin    

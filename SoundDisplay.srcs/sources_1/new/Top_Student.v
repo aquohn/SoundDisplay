@@ -94,9 +94,6 @@ module Top_Student (
         .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]),
         .frame_begin(frame_begin), .pixel_index(pixel_index));
     Coord_Sys coord_sys (.pixel_index(pixel_index), .x(x), .y(y));
-        
-    // Frequency change 
-    //freq_switch choose_freq (.SW(sw[11:10]), .CLOCK(clk20k), .chosen_clk(chosen_clk));
     
     // Basic functionality module
     Vol_Indic vol_indic (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
