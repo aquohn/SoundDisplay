@@ -72,10 +72,13 @@ module Top_Student (
     wire [15:0] led_basic;
     wire [6:0] seg_basic;
     wire [3:0] an_basic;
-    wire dp_basic;
     wire [15:0] oled_basic;
     
-    //output from ...
+    //output from fractal
+    wire [15:0] led_fractal;
+    wire [6:0] seg_fractal;
+    wire [3:0] an_fractal;
+    wire [15:0] oled_fractal;
     
     // Button debouncing
     assign btnC_signal = ~btnC_ff & btnC_pipe;
@@ -98,10 +101,11 @@ module Top_Student (
     
     // Basic functionality module
     Vol_Indic vol_indic (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
-            .an(an_basic), .dp(dp_basic), .x(x), .y(y), .intensity_reg(intensity_reg));
+            .an(an_basic), .x(x), .y(y), .intensity_reg(intensity_reg));
             
     // Fractal visualiser module
-    
+    Fractal fractal (.x(x), .y(y), .intensity(intensity_reg), .mic_clk(clk20k), .oled_clk(clk6p25m), .clk100m(clk_in),
+            .led(led_fractal), .oled_data(oled_fractal), .seg(seg_fractal), .an(an_fractal));
     
     // Multiplexer to select output from chosen module
     //
@@ -110,12 +114,19 @@ module Top_Student (
     // led, oled_data, seg, an, dp 
     always @(*) begin
         case (sys_mode)
+            4'b0001: begin
+                led = led_fractal;
+                oled_data = oled_fractal;
+                seg = seg_fractal;
+                an = an_fractal;
+                dp = 1'b1;
+            end
             default: begin //default to basic functionality
-                led = {4'b0000, led_basic};
+                led = led_basic;
                 oled_data = oled_basic;
                 seg = seg_basic;
                 an = an_basic;
-                dp = dp_basic;
+                dp = 1'b1;
             end
         endcase
     end 

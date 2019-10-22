@@ -44,8 +44,7 @@ module Vol_Indic(
     output reg [15:0] intensity_reg,
     output reg [15:0] oled_data,
     output reg [6:0] seg,
-    output reg [3:0] an,
-    output reg dp = 1'b1
+    output reg [3:0] an
     );
     
     reg [12:0] counter = 0;
