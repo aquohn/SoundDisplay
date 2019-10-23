@@ -39,7 +39,7 @@ module Top_Student (
     );
     
     reg [3:0] sys_mode = 4'b0000;
-    reg btnC_pipe, btnC_ff, btnU_pipe, btnU_ff, btnR_pipe, btnR_ff, btnL_pipe, btnL_ff, btnD_pipe, btnD_ff;
+    reg btnC_pipe, btnC_reg, btnU_pipe, btnU_reg, btnR_pipe, btnR_reg, btnL_pipe, btnL_reg, btnD_pipe, btnD_reg;
     wire btnC_signal, btnU_signal, btnR_signal, btnL_signal, btnD_signal;
     wire clk20k, clk6p25m, clk20;
     parameter MODE_MAX = 4'b1111; // change to actual number of modes later
@@ -80,11 +80,11 @@ module Top_Student (
     wire [15:0] oled_fractal;
     
     // Button debouncing
-    assign btnC_signal = ~btnC_ff & btnC_pipe;
-    assign btnU_signal = ~btnU_ff & btnC_pipe;
-    assign btnR_signal = ~btnR_ff & btnC_pipe;
-    assign btnL_signal = ~btnL_ff & btnC_pipe;
-    assign btnD_signal = ~btnD_ff & btnD_pipe;
+    assign btnC_signal = ~btnC_reg & btnC_pipe;
+    assign btnU_signal = ~btnU_reg & btnC_pipe;
+    assign btnR_signal = ~btnR_reg & btnC_pipe;
+    assign btnL_signal = ~btnL_reg & btnC_pipe;
+    assign btnD_signal = ~btnD_reg & btnD_pipe;
     
     // Clock setup
     Clk_Gen clk_gen (.clk100m(clk_in), .clk6p25m(clk6p25m), .clk20(clk20));
@@ -131,17 +131,17 @@ module Top_Student (
         endcase
     end 
     
-    always @(posedge clk6p25m) begin
+    always @(posedge clk20) begin
         btnC_pipe <= btnC;
-        btnC_ff <= btnC_pipe;
+        btnC_reg <= btnC_pipe;
         btnU_pipe <= btnU;
-        btnU_ff <= btnU_pipe;
+        btnU_reg <= btnU_pipe;
         btnL_pipe <= btnL;
-        btnL_ff <= btnL_pipe;
+        btnL_reg <= btnL_pipe;
         btnL_pipe <= btnL;
-        btnL_ff <= btnL_pipe;
+        btnL_reg <= btnL_pipe;
         btnD_pipe <= btnD;
-        btnD_ff <= btnD_pipe;
+        btnD_reg <= btnD_pipe;
         
         if (sw[15]) begin
             if (btnD_signal) begin
