@@ -41,13 +41,12 @@ module Top_Student (
     reg [3:0] sys_mode = 4'b0000;
     reg btnC_pipe, btnC_ff, btnU_pipe, btnU_ff, btnR_pipe, btnR_ff, btnL_pipe, btnL_ff, btnD_pipe, btnD_ff;
     wire btnC_signal, btnU_signal, btnR_signal, btnL_signal, btnD_signal;
-    wire clk20k, clk6p25m, clk12p5m;
+    wire clk20k, clk6p25m, clk20;
     parameter MODE_MAX = 4'b1111; // change to actual number of modes later
     wire [15:0] intensity_reg;
     
     // signals for mic
     wire [11:0] mic_in; //data from mic
-    wire chosen_clk;
     wire [3:0] an1, an2; 
     
     // signals for oled
@@ -87,13 +86,14 @@ module Top_Student (
     assign btnL_signal = ~btnL_ff & btnC_pipe;
     assign btnD_signal = ~btnD_ff & btnD_pipe;
     
+    // Clock setup
+    Clk_Gen clk_gen (.clk100m(clk_in), .clk6p25m(clk6p25m), .clk20(clk20));
+    
     // Mic setup
-    clk_voice clk_voice_mod (.clk_in(clk_in), .clk_out(clk20k));
     Audio_Capture audio_capture (.CLK(clk_in), .cs(clk20k), .MISO(J_MIC3_Pin3),
         .clk_samp(J_MIC3_Pin1), .sclk(J_MIC3_Pin4), .sample(mic_in));
    
     // Oled setup
-    clk_oled clk_oled_mod (.clk100m(clk_in), .clk6p25m(clk6p25m), .clk12p5m(clk12p5m));
     Oled_Display oled_display (.clk(clk6p25m), .reset(btnC_signal), .pixel_data(oled_data),
         .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]),
         .frame_begin(frame_begin), .pixel_index(pixel_index));
