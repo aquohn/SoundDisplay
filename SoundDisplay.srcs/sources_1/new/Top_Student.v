@@ -87,7 +87,7 @@ module Top_Student (
     assign btnD_signal = ~btnD_reg & btnD_pipe;
     
     // Clock setup
-    Clk_Gen clk_gen (.clk100m(clk_in), .clk6p25m(clk6p25m), .clk20(clk20));
+    Clk_Gen clk_gen (.clk100m(clk_in), .clk6p25m(clk6p25m), .clk20(clk20), .clk20k(clk20k));
     
     // Mic setup
     Audio_Capture audio_capture (.CLK(clk_in), .cs(clk20k), .MISO(J_MIC3_Pin3),
