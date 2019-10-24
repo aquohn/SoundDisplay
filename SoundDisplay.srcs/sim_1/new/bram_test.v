@@ -36,7 +36,7 @@ module bram_test(
     reg [9:0] cnt;
     
     assign startaddr = addra + 1;
-    assign dina = addra;
+    assign dina = {3'b000, addra};
     
     always begin
         clk100m = 1'b0;
@@ -44,7 +44,11 @@ module bram_test(
         #5;
     end
     
-    initial cnt = 9'd0;
+    initial begin
+        cnt = 9'd0;
+        addra = 10'd0;
+        addrb = 10'd0;
+    end
     
     blk_mem_gen_0 bram (.clka(clk20k), .wea(1'b1), .addra(addra), .dina(dina), .clkb(clk100m), 
     .enb(1'b1), .addrb(addrb), .doutb(doutb));
