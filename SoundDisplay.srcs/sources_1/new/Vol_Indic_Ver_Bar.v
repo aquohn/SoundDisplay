@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 14.10.2019 16:59:18
+// Create Date: 29.10.2019 19:37:49
 // Design Name: 
-// Module Name: VolIndic
+// Module Name: Vol_Indic_Ver_Bar
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -24,8 +24,6 @@
  * sw[2]: select border thickness
  * sw[3]: toggle volume bar
  * sw[4]: toggle border
- * sw[5]: toggle bar thickness
- * sw[6]: toggle bar width
  * sw[9]: left 2 anodes display
  * sw[10]: middle 2 anodes display
  * sw[11]: 10Hz frequency
@@ -58,9 +56,7 @@ module Vol_Indic(
     reg [12:0] freq_count = 0;
     
     reg [15:0] colour_border, colour_bg, colour_high, colour_mid, colour_low;
-    reg thickness;
-    reg [4:0] width;
-    
+
     always @(*) begin
         case ({sw[1], sw[0]})
             2'b01: begin //ocean
@@ -91,17 +87,7 @@ module Vol_Indic(
                 colour_mid = `OLED_YELLOW;
                 colour_low = `OLED_GREEN;                    
             end    
-        endcase
-        
-        case (sw[5])
-            1'b0: thickness = 1'b1;
-            1'b1: thickness = 1'b0;
-        endcase
-        
-        case (sw[6])
-            1'b0: width = 5'd8;
-            1'b1: width = 5'd24;
-        endcase        
+        endcase       
     end
     
     always @ (posedge mic_clk) begin
@@ -266,12 +252,11 @@ module Vol_Indic(
                 end
             endcase
         end
-
-        // draw bars; even numbers - >= to <
-        if (~sw[3] && x >= 48 - width && x < 48 + width) begin : genbars
+        
+        if (~sw[3] && y > 2 && y < 61) begin : genbars
             integer i;
-            for (i = 0; i < 15; i = i + 1) begin
-                if (y >= (60 - 4 * i) - thickness && y <= (60 - 4 * i) + thickness && intensity_reg[i]) begin
+            for (i = 0; i < 15 ; i = i + 1) begin
+                if (x >= (3 + 6 * i) && x <= (7 + 6 * i) && intensity_reg[i] && y >= (57 - 4 * i)) begin
                     if (i < 5) begin
                         oled_data <= colour_low;
                     end else if (i < 10) begin
@@ -281,6 +266,6 @@ module Vol_Indic(
                     end 
                 end
             end
-       end
+        end
    end
 endmodule
