@@ -19,7 +19,6 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
 /**
  * sw[0]/sw[1]: select colour theme
  * sw[2]: select border thickness
@@ -56,38 +55,46 @@ module Vol_Indic_Square(
     
     reg [12:0] freq_count = 0;
     
-    reg [15:0] colour_border, colour_bg, colour_high, colour_mid, colour_low;
+    reg [15:0] colour_border, colour_bg, colour_high, colour_mid, colour_low, colour_mid_high, colour_mid_mid;
 
     always @(*) begin
         case ({sw[1], sw[0]})
             2'b01: begin //ocean
-                colour_border = {5'd4, 6'd15, 5'd11};
-                colour_bg = {5'd29, 6'd58, 5'd25};
-                colour_high = {5'd19, 6'd47, 5'd24};
-                colour_mid = {5'd3, 6'd20, 5'd18};
-                colour_low = {5'd4, 6'd15, 5'd11};                
-            end
-            2'b10: begin //earth
-                colour_border = {5'd27, 6'd46, 5'd2};
-                colour_bg = {5'd29, 6'd56, 5'd21};
-                colour_high = {5'd22, 6'd58, 5'd15};
-                colour_mid = {5'd6, 6'd50, 5'd10};
-                colour_low = {5'd13, 6'd40, 5'd10};                        
-            end
-            2'b11: begin //enhancement colour scheme: sunset
-                colour_border = {5'd31, 6'd54, 5'd22};
-                colour_bg = {5'd6, 6'd14, 5'd10};
-                colour_high = {5'd31, 6'd41, 5'd22};
-                colour_mid = {5'd21, 6'd33, 5'd20};
-                colour_low = {5'd10, 6'd21, 5'd15}; 
-            end
-            default: begin
-                colour_border = `OLED_WHITE;
-                colour_bg = `OLED_BLACK;
-                colour_high = `OLED_RED;
-                colour_mid = `OLED_YELLOW;
-                colour_low = `OLED_GREEN;                    
-            end    
+                    colour_border = {5'd4, 6'd15, 5'd11};
+                    colour_bg = {5'd29, 6'd58, 5'd25};
+                    colour_high = {5'd19, 6'd47, 5'd24};
+                    colour_mid_high = {5'd11, 6'd37, 5'd30};
+                    colour_mid = {5'd5, 6'd30, 5'd30};
+                    colour_mid_mid = {5'd2, 6'd14, 5'd15};
+                    colour_low = {5'd4, 6'd15, 5'd11};                
+                end
+                2'b10: begin //earth
+                    colour_border = {5'd27, 6'd46, 5'd2};
+                    colour_bg = {5'd29, 6'd56, 5'd21};
+                    colour_high = {5'd22, 6'd58, 5'd15};
+                    colour_mid_high = {5'd15, 6'd59, 5'd16};
+                    colour_mid = {5'd6, 6'd50, 5'd10};
+                    colour_mid_mid = {5'd13, 6'd40, 5'd10};
+                    colour_low = {5'd8, 6'd30, 5'd9};                                 
+                end
+                2'b11: begin //enhancement colour scheme: sunset
+                    colour_border = {5'd31, 6'd54, 5'd22};
+                    colour_bg = {5'd6, 6'd14, 5'd10};
+                    colour_high = {5'd31, 6'd41, 5'd22};
+                    colour_mid_high = {5'd25, 6'd46, 5'd30};
+                    colour_mid = {5'd18, 6'd32, 5'd22};
+                    colour_mid_mid = {5'd21, 6'd33, 5'd20};
+                    colour_low = {5'd10, 6'd21, 5'd15}; 
+                end
+                default: begin
+                    colour_border = `OLED_WHITE;
+                    colour_bg = `OLED_BLACK;
+                    colour_high = `OLED_RED;
+                    colour_mid_high = {5'd31, 6'd31, 5'd0};
+                    colour_mid = `OLED_YELLOW;
+                    colour_mid_mid = {5'd22, 6'd58, 5'd5};
+                    colour_low = `OLED_GREEN;                    
+                end    
         endcase       
     end
     

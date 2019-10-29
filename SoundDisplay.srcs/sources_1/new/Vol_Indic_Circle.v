@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 29.10.2019 19:37:49
+// Create Date: 30.10.2019 00:35:15
 // Design Name: 
-// Module Name: Vol_Indic_Ver_Bar
+// Module Name: Vol_Indic_Circle
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -22,8 +22,9 @@
 /**
  * sw[0]/sw[1]: select colour theme
  * sw[2]: select border thickness
- * sw[3]: toggle volume bar
+ * sw[3]: toggle 1 circle volume indicator
  * sw[4]: toggle border
+ * sw[5]: toggle 5 circles display
  * sw[9]: left 2 anodes display
  * sw[10]: middle 2 anodes display
  * sw[11]: 10Hz frequency
@@ -33,7 +34,7 @@
  * sw[15]: constant LED indicator (Task 1 requirement)
  */
  
-module Vol_Indic_Ver_Bar(
+module Vol_Indic_Circle(
     input mic_clk,
     input oled_clk,
     input [15:0] sw,
@@ -261,10 +262,10 @@ module Vol_Indic_Ver_Bar(
             endcase
         end
         
-        if (~sw[3] && y > 2 && y < 61) begin : genbars
-            integer i;
-            for (i = 0; i < 15 ; i = i + 1) begin
-                if (x >= (3 + 6 * i) && x <= (7 + 6 * i) && intensity_reg[i] && y >= (57 - 4 * i)) begin
+        if (~sw[5] && ~sw[3] && y > 2 && y < 61 && x > 2 && x < 93) begin : gencircle
+            integer i; 
+            for (i = 0; i < 15; i = i + 1) begin
+                if (( (x - 48)*(x - 48) + (y - 32)*(y - 32) ) <= ((10 + i)*(10 + i)) && intensity_reg[i]) begin
                     if (i < 5) begin
                         oled_data <= colour_low;
                     end else if (i < 10) begin
@@ -274,6 +275,84 @@ module Vol_Indic_Ver_Bar(
                     end 
                 end
             end
+        end
+        
+        if (sw[5]) begin : genmultiplecircle
+            integer i;
+            if (x > 2 && x < 93 && y > 2 && y < 61) begin
+                for (i = 0; i < 15; i = i + 1) begin
+                    if (( (x - 20)*(x - 20) + (y - 17)*(y - 17) ) <= ((i*i)) && intensity_reg[i]) begin
+                        if (i < 3) begin
+                            oled_data <= colour_low;
+                        end else if (i < 6) begin
+                            oled_data <= colour_mid_mid;
+                        end else if (i < 9) begin
+                            oled_data <= colour_mid;
+                        end else if (i < 12) begin
+                            oled_data <= colour_mid_high;
+                        end else begin
+                            oled_data <= colour_high;
+                        end 
+                    end
+                    
+                    if (( (x - 20)*(x - 20) + (y - 47)*(y - 47) ) <= ((i*i)) && intensity_reg[i]) begin
+                        if (i < 3) begin
+                            oled_data <= colour_low;
+                        end else if (i < 6) begin
+                            oled_data <= colour_mid_mid;
+                        end else if (i < 9) begin
+                            oled_data <= colour_mid;
+                        end else if (i < 12) begin
+                            oled_data <= colour_mid_high;
+                        end else begin
+                            oled_data <= colour_high;
+                        end 
+                    end
+                    
+                    if (( (x - 76)*(x - 76) + (y - 17)*(y - 17) ) <= ((i*i)) && intensity_reg[i]) begin
+                        if (i < 3) begin
+                            oled_data <= colour_low;
+                        end else if (i < 6) begin
+                            oled_data <= colour_mid_mid;
+                        end else if (i < 9) begin
+                            oled_data <= colour_mid;
+                        end else if (i < 12) begin
+                            oled_data <= colour_mid_high;
+                        end else begin
+                            oled_data <= colour_high;
+                        end 
+                    end
+                    
+                    if (( (x - 76)*(x - 76) + (y - 47)*(y - 47) ) <= ((i*i)) && intensity_reg[i]) begin
+                        if (i < 3) begin
+                            oled_data <= colour_low;
+                        end else if (i < 6) begin
+                            oled_data <= colour_mid_mid;
+                        end else if (i < 9) begin
+                            oled_data <= colour_mid;
+                        end else if (i < 12) begin
+                            oled_data <= colour_mid_high;
+                        end else begin
+                            oled_data <= colour_high;
+                        end 
+                    end
+                    
+                    if (( (x - 48)*(x - 48) + (y - 32)*(y - 32) ) <= ((i*i)) && intensity_reg[i]) begin
+                        if (i < 3) begin
+                            oled_data <= colour_low;
+                        end else if (i < 6) begin
+                            oled_data <= colour_mid_mid;
+                        end else if (i < 9) begin
+                            oled_data <= colour_mid;
+                        end else if (i < 12) begin
+                            oled_data <= colour_mid_high;
+                        end else begin
+                            oled_data <= colour_high;
+                        end 
+                    end
+                end
+            end
+                
         end
    end
 endmodule
