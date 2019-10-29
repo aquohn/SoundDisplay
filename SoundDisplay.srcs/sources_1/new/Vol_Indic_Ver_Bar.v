@@ -265,10 +265,14 @@ module Vol_Indic_Ver_Bar(
             integer i;
             for (i = 0; i < 15 ; i = i + 1) begin
                 if (x >= (3 + 6 * i) && x <= (7 + 6 * i) && intensity_reg[i] && y >= (57 - 4 * i)) begin
-                    if (i < 5) begin
+                    if (i < 3) begin
                         oled_data <= colour_low;
-                    end else if (i < 10) begin
+                    end else if (i < 6) begin
+                        oled_data <= colour_mid_mid;
+                    end else if (i < 9) begin
                         oled_data <= colour_mid;
+                    end else if (i < 12) begin
+                        oled_data <= colour_mid_high;
                     end else begin
                         oled_data <= colour_high;
                     end 

@@ -24,6 +24,7 @@
  * sw[2]: select border thickness
  * sw[3]: toggle square volume indicator
  * sw[4]: toggle border
+ * sw[5]: toggle 4 squares volume indicator
  * sw[9]: left 2 anodes display
  * sw[10]: middle 2 anodes display
  * sw[11]: 10Hz frequency
@@ -261,19 +262,84 @@ module Vol_Indic_Square(
             endcase
         end
         
-        if (~sw[3] && y > 2 && y < 61) begin : gensquare
-            integer i;
-            for (i = 0; i < 15; i = i + 1) begin
+        if (~sw[5] && ~sw[3] && y > 2 && y < 61) begin : gensquare
+             integer i;
+             for (i = 0; i < 15; i = i + 1) begin
                 if (x >= 43 - 3 * i && x <= 52 + 3 * i && y >= 28 - 2 * i && y <= 36 + 2 * i && intensity_reg[i]) begin
-                    if (i < 5) begin
+                    if (i < 3) begin
                         oled_data <= colour_low;
-                    end else if (i < 10) begin
+                    end else if (i < 6) begin
+                        oled_data <= colour_mid_mid;
+                    end else if (i < 9) begin
                         oled_data <= colour_mid;
+                    end else if (i < 12) begin
+                        oled_data <= colour_mid_high;
                     end else begin
                         oled_data <= colour_high;
-                    end
+                    end 
                 end
             end
         end
+        
+        if (sw[5]) begin : genmultiplesquare
+            integer i;
+            for (i = 0; i < 15; i = i + 1) begin
+               if (x > 16 - i && x <= 33 + i && y > 16 - i && y <= 18 + i && intensity_reg[i]) begin
+                   if (i < 3) begin
+                       oled_data <= colour_low;
+                   end else if (i < 6) begin
+                       oled_data <= colour_mid_mid;
+                   end else if (i < 9) begin
+                       oled_data <= colour_mid;
+                   end else if (i < 12) begin
+                       oled_data <= colour_mid_high;
+                   end else begin
+                       oled_data <= colour_high;
+                   end 
+               end
+               
+               if (x > 16 - i && x <= 33 + i && y >= 45 - i && y < 47 + i && intensity_reg[i]) begin
+                   if (i < 3) begin
+                       oled_data <= colour_low;
+                   end else if (i < 6) begin
+                       oled_data <= colour_mid_mid;
+                   end else if (i < 9) begin
+                       oled_data <= colour_mid;
+                   end else if (i < 12) begin
+                       oled_data <= colour_mid_high;
+                   end else begin
+                       oled_data <= colour_high;
+                   end 
+               end
+               
+               if (x >= 61 - i && x < 79 + i && y > 16 - i && y <= 18 + i && intensity_reg[i]) begin
+                   if (i < 3) begin
+                       oled_data <= colour_low;
+                   end else if (i < 6) begin
+                       oled_data <= colour_mid_mid;
+                   end else if (i < 9) begin
+                       oled_data <= colour_mid;
+                   end else if (i < 12) begin
+                       oled_data <= colour_mid_high;
+                   end else begin
+                       oled_data <= colour_high;
+                   end 
+               end
+               
+               if (x >= 61 - i && x < 79 + i && y >= 45 - i && y < 47 + i && intensity_reg[i]) begin
+                   if (i < 3) begin
+                        oled_data <= colour_low;
+                   end else if (i < 6) begin
+                       oled_data <= colour_mid_mid;
+                   end else if (i < 9) begin
+                       oled_data <= colour_mid;
+                   end else if (i < 12) begin
+                       oled_data <= colour_mid_high;
+                   end else begin
+                       oled_data <= colour_high;
+                   end 
+               end
+           end
+       end
    end
 endmodule
