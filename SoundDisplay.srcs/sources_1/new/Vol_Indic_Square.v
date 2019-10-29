@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 29.10.2019 19:37:49
+// Create Date: 29.10.2019 19:42:17
 // Design Name: 
-// Module Name: Vol_Indic_Ver_Bar
+// Module Name: Vol_Indic_Square
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -19,10 +19,11 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+
 /**
  * sw[0]/sw[1]: select colour theme
  * sw[2]: select border thickness
- * sw[3]: toggle volume bar
+ * sw[3]: toggle square volume indicator
  * sw[4]: toggle border
  * sw[9]: left 2 anodes display
  * sw[10]: middle 2 anodes display
@@ -33,7 +34,7 @@
  * sw[15]: constant LED indicator (Task 1 requirement)
  */
  
-module Vol_Indic_Ver_Bar(
+module Vol_Indic_Square(
     input mic_clk,
     input oled_clk,
     input [15:0] sw,
@@ -253,17 +254,17 @@ module Vol_Indic_Ver_Bar(
             endcase
         end
         
-        if (~sw[3] && y > 2 && y < 61) begin : genbars
+        if (~sw[3] && y > 2 && y < 61) begin : gensquare
             integer i;
-            for (i = 0; i < 15 ; i = i + 1) begin
-                if (x >= (3 + 6 * i) && x <= (7 + 6 * i) && intensity_reg[i] && y >= (57 - 4 * i)) begin
+            for (i = 0; i < 15; i = i + 1) begin
+                if (x >= 43 - 3 * i && x <= 52 + 3 * i && y >= 28 - 2 * i && y <= 36 + 2 * i && intensity_reg[i]) begin
                     if (i < 5) begin
                         oled_data <= colour_low;
                     end else if (i < 10) begin
                         oled_data <= colour_mid;
                     end else begin
                         oled_data <= colour_high;
-                    end 
+                    end
                 end
             end
         end

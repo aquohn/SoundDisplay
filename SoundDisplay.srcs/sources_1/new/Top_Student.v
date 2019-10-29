@@ -85,6 +85,12 @@ module Top_Student (
     wire [3:0] an_vertical;
     wire [15:0] oled_vertical;
     
+    //output from square volume indicator
+    wire [15:0] led_square;
+    wire [6:0] seg_square;
+    wire [3:0] an_square;
+    wire [15:0] oled_square;
+    
     // Button debouncing
     assign btnC_signal = ~btnC_reg & btnC_pipe;
     assign btnU_signal = ~btnU_reg & btnC_pipe;
@@ -112,6 +118,10 @@ module Top_Student (
     // Vertical Bar Volume Indicator 
     Vol_Indic_Ver_Bar vol_indic_ver (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_vertical), .oled_data(oled_vertical), .seg(seg_vertical),
                 .an(an_vertical), .x(x), .y(y), .intensity_reg(intensity_reg));
+                
+    // Vertical Bar Volume Indicator 
+    Vol_Indic_Square vol_indic_square (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_square), .oled_data(oled_square), .seg(seg_square),
+                .an(an_square), .x(x), .y(y), .intensity_reg(intensity_reg));
             
     // Fractal visualiser module
     Fractal fractal (.x(x), .y(y), .intensity(intensity_reg), .mic_clk(clk20k), .oled_clk(clk6p25m), .clk100m(clk_in),
@@ -136,6 +146,13 @@ module Top_Student (
                 oled_data = oled_vertical;
                 seg = seg_vertical;
                 an = an_vertical;
+                dp = 1'b1;
+            end
+            4'b0011: begin
+                led = led_square;
+                oled_data = oled_square;
+                seg = seg_square;
+                an = an_square;
                 dp = 1'b1;
             end
             default: begin //default to basic functionality
