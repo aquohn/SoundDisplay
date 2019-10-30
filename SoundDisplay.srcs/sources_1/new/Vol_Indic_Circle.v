@@ -55,6 +55,10 @@ module Vol_Indic_Circle(
     reg [6:0] seg_ones = 7'b0;
     
     reg [12:0] freq_count = 0;
+    reg [17:0] freq_count_oled = 0;
+    
+    reg [6:0] x_axis = 7'd48;
+    reg [6:0] y_axis = 7'd32;
     
     reg [15:0] colour_border, colour_bg, colour_high, colour_mid, colour_low, colour_mid_high, colour_mid_mid;
 
@@ -242,7 +246,9 @@ module Vol_Indic_Circle(
         end
     end
     
-    always @(posedge oled_clk) begin    
+    always @(posedge oled_clk) begin
+        freq_count_oled <= (freq_count_oled == 156249) ? 0 : freq_count_oled + 1; // 20Hz frequency
+    
         // draw screen
         oled_data <= colour_bg;
         
@@ -275,6 +281,30 @@ module Vol_Indic_Circle(
                     end 
                 end
             end
+        end
+        
+        if (freq_count_oled == 0 && ~sw[5] && ~sw[3]) begin : genmovingcircle
+            integer i; 
+            
+            for (i = 0; i < 15; i = i + 1) begin
+               if (i == 14 && intensity_reg[14]) begin
+                   x_axis <= (x_axis == 7'b1010011) ? 7'b1010011 : x_axis + 1;
+               end
+               if ((i == 2 && intensity_reg[2])) begin
+                   x_axis <= (x_axis == 7'b0001100) ? 7'b0001100 : x_axis - 1;
+               end
+               if ((i == 6 && intensity_reg[6])) begin
+                   y_axis <= (y_axis == 7'b0001100) ? 7'b0001100 : y_axis - 1;
+               end
+               if ((i == 10 && intensity_reg[10])) begin
+                   y_axis <= (y_axis == 7'b0110011) ? 7'b0110011 : y_axis + 1; 
+               end
+           end
+           
+       end else if (~sw[3] && ~sw[5] && y > 2 && y < 61 && x > 2 && x < 93) begin
+           if ( (x - x_axis)*(x - x_axis) + (y - y_axis)*(y - y_axis) <= 100 ) begin
+               oled_data <= colour_mid_high;
+           end
         end
         
         if (sw[5]) begin : genmultiplecircle

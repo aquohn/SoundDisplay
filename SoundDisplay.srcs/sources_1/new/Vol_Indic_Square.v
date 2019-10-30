@@ -262,7 +262,7 @@ module Vol_Indic_Square(
             endcase
         end
         
-        if (~sw[5] && ~sw[3] && y > 2 && y < 61) begin : gensquare
+        if (~sw[5] && ~sw[3] && y > 2 && y < 61 && x > 2 && x < 93) begin : gensquare
              integer i;
              for (i = 0; i < 15; i = i + 1) begin
                 if (x >= 43 - 3 * i && x <= 52 + 3 * i && y >= 28 - 2 * i && y <= 36 + 2 * i && intensity_reg[i]) begin
