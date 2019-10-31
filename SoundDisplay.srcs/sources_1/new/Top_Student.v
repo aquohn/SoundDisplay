@@ -46,7 +46,7 @@ module Top_Student (
     reg btnC_pipe, btnC_reg, btnU_pipe, btnU_reg, btnR_pipe, btnR_reg, btnL_pipe, btnL_reg, btnD_pipe, btnD_reg;
     wire btnC_signal, btnU_signal, btnR_signal, btnL_signal, btnD_signal;
     wire clk20k, clk6p25m, clk20;
-    parameter MODE_MAX = 4'b1111; // change to actual number of modes later
+    parameter MODE_MAX = 4'b0101; // change to actual number of modes later
     wire [15:0] intensity_reg;
     
     // signals for mic
@@ -98,9 +98,9 @@ module Top_Student (
     
     // Button debouncing
     assign btnC_signal = ~btnC_reg & btnC_pipe;
-    assign btnU_signal = ~btnU_reg & btnC_pipe;
-    assign btnR_signal = ~btnR_reg & btnC_pipe;
-    assign btnL_signal = ~btnL_reg & btnC_pipe;
+    assign btnU_signal = ~btnU_reg & btnU_pipe;
+    assign btnR_signal = ~btnR_reg & btnR_pipe;
+    assign btnL_signal = ~btnL_reg & btnL_pipe;
     assign btnD_signal = ~btnD_reg & btnD_pipe;
     
     // Clock setup
@@ -133,8 +133,8 @@ module Top_Student (
                 .an(an_circle), .x(x), .y(y), .intensity_reg(intensity_reg));
             
     // Fractal visualiser module
-    Fractal fractal (.x(x), .y(y), .intensity(intensity_reg), .mic_clk(clk20k), .oled_clk(clk6p25m), .clk100m(clk_in),
-            .led(led_fractal), .oled_data(oled_fractal), .seg(seg_fractal), .an(an_fractal));
+    /*Fractal fractal (.x(x), .y(y), .intensity(intensity_reg), .mic_clk(clk20k), .oled_clk(clk6p25m), .clk100m(clk_in),
+            .led(led_fractal), .oled_data(oled_fractal), .seg(seg_fractal), .an(an_fractal));*/
     
     // Space Invader Game 
     Space_Invader space_invader (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_space), .oled_data(oled_space), .seg(seg_space),
