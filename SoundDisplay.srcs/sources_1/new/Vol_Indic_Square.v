@@ -25,6 +25,7 @@
  * sw[3]: toggle square volume indicator
  * sw[4]: toggle border
  * sw[5]: toggle 4 squares volume indicator
+ * sw[7]: toggle moving square 
  * sw[9]: left 2 anodes display
  * sw[10]: middle 2 anodes display
  * sw[11]: 10Hz frequency
@@ -55,6 +56,12 @@ module Vol_Indic_Square(
     reg [6:0] seg_ones = 7'b0;
     
     reg [12:0] freq_count = 0;
+    reg [17:0] freq_count_oled = 0;
+    
+    reg [6:0] left = 7'd43;
+    reg [6:0] right = 7'd53;
+    reg [6:0] up = 7'd55;
+    reg [6:0] down = 7'd60;
     
     reg [15:0] colour_border, colour_bg, colour_high, colour_mid, colour_low, colour_mid_high, colour_mid_mid;
 
@@ -280,6 +287,29 @@ module Vol_Indic_Square(
                 end
             end
         end
+        
+        if (freq_count_oled == 0 && ~sw[5] && sw[7]) begin : genmovingsquare
+            integer i;
+            for (i = 0; i < 15; i = i + 1) begin
+                if (i == 2 && intensity_reg[2]) begin
+                    left <= (left == 7'b1010010) ? 7'b1010010 : left + 1; // move right
+                    right <= (right == 7'b1011100) ? 7'b1011100 : right + 1;
+                end else if (i == 6 && intensity_reg[6]) begin
+                    left <= (left == 7'b0000011) ? 7'b0000011 : left - 1; // move left
+                    right <= (right == 7'b0001101) ? 7'b0001101 : right - 1;
+                end else if (i == 10 && intensity_reg[10]) begin
+                    up <= (up == 7'b0000011) ? 7'b0000011 : up - 1; // move up
+                    down <= (down == 7'b0001000) ? 7'b00001000 : down - 1; 
+                end else if (i == 14 && intensity_reg[14]) begin
+                    up <= (up == 7'b0110111) ? 7'b0110111 : up + 1; // move down
+                    down <= (down == 7'b0111100) ? 7'b0111100 : down + 1; 
+                end
+            end
+        end else if (sw[7] && y >= 3 && y <= 60 && x >= 3 && x <= 92) begin
+            if (x >= left && x <= right && y >= up && y <= down) begin
+                oled_data <= colour_mid_high;
+            end
+        end   
         
         if (sw[5]) begin : genmultiplesquare
             integer i;
