@@ -25,6 +25,7 @@
  * sw[3]: toggle 1 circle volume indicator
  * sw[4]: toggle border
  * sw[5]: toggle 5 circles display
+ * sw[7]: toggle moving circle display
  * sw[9]: left 2 anodes display
  * sw[10]: middle 2 anodes display
  * sw[11]: 10Hz frequency
@@ -268,14 +269,18 @@ module Vol_Indic_Circle(
             endcase
         end
         
-        if (~sw[5] && ~sw[3] && y > 2 && y < 61 && x > 2 && x < 93) begin : gencircle
+        if (~sw[3] && ~sw[5] && ~sw[7] && y > 2 && y < 61 && x > 2 && x < 93) begin : gencircle
             integer i; 
             for (i = 0; i < 15; i = i + 1) begin
                 if (( (x - 48)*(x - 48) + (y - 32)*(y - 32) ) <= ((10 + i)*(10 + i)) && intensity_reg[i]) begin
-                    if (i < 5) begin
-                        oled_data <= colour_low;
-                    end else if (i < 10) begin
+                    if (i < 3) begin
+                         oled_data <= colour_low;
+                    end else if (i < 6) begin
+                        oled_data <= colour_mid_mid;
+                    end else if (i < 9) begin
                         oled_data <= colour_mid;
+                    end else if (i < 12) begin
+                        oled_data <= colour_mid_high;
                     end else begin
                         oled_data <= colour_high;
                     end 
@@ -283,27 +288,23 @@ module Vol_Indic_Circle(
             end
         end
         
-        if (freq_count_oled == 0 && ~sw[5] && ~sw[3]) begin : genmovingcircle
+        if (freq_count_oled == 0 && ~sw[5] && sw[7]) begin : genmovingcircle
             integer i; 
             
             for (i = 0; i < 15; i = i + 1) begin
-               if (i == 14 && intensity_reg[14]) begin
-                   x_axis <= (x_axis == 7'b1010011) ? 7'b1010011 : x_axis + 1;
+               if (i == 6 && intensity_reg[6]) begin
+                   x_axis <= (x_axis == 7'b1010011) ? 7'b1010011 : x_axis + 1; // move right
+               end else if ((i == 2 && intensity_reg[2])) begin
+                   x_axis <= (x_axis == 7'b0001100) ? 7'b0001100 : x_axis - 1; // move left 
+               end else if ((i == 14&& intensity_reg[14])) begin
+                   y_axis <= (y_axis == 7'b0001100) ? 7'b0001100 : y_axis - 1; // move up
+               end else if ((i == 10 && intensity_reg[10])) begin
+                   y_axis <= (y_axis == 7'b0110011) ? 7'b0110011 : y_axis + 1; // move down
                end
-               if ((i == 2 && intensity_reg[2])) begin
-                   x_axis <= (x_axis == 7'b0001100) ? 7'b0001100 : x_axis - 1;
-               end
-               if ((i == 6 && intensity_reg[6])) begin
-                   y_axis <= (y_axis == 7'b0001100) ? 7'b0001100 : y_axis - 1;
-               end
-               if ((i == 10 && intensity_reg[10])) begin
-                   y_axis <= (y_axis == 7'b0110011) ? 7'b0110011 : y_axis + 1; 
-               end
-           end
-           
-       end else if (~sw[3] && ~sw[5] && y > 2 && y < 61 && x > 2 && x < 93) begin
+           end 
+        end else if (~sw[5] && sw[7] && y > 2 && y < 61 && x > 2 && x < 93) begin
            if ( (x - x_axis)*(x - x_axis) + (y - y_axis)*(y - y_axis) <= 100 ) begin
-               oled_data <= colour_mid_high;
+               oled_data <= colour_mid;
            end
         end
         
@@ -311,7 +312,7 @@ module Vol_Indic_Circle(
             integer i;
             if (x > 2 && x < 93 && y > 2 && y < 61) begin
                 for (i = 0; i < 15; i = i + 1) begin
-                    if (( (x - 20)*(x - 20) + (y - 17)*(y - 17) ) <= ((i*i)) && intensity_reg[i]) begin
+                    if (( (x - 20)*(x - 20) + (y - 17)*(y - 17) ) <= ((i*i)) && intensity_reg[i]) begin // top left circle
                         if (i < 3) begin
                             oled_data <= colour_low;
                         end else if (i < 6) begin
@@ -325,7 +326,7 @@ module Vol_Indic_Circle(
                         end 
                     end
                     
-                    if (( (x - 20)*(x - 20) + (y - 47)*(y - 47) ) <= ((i*i)) && intensity_reg[i]) begin
+                    if (( (x - 20)*(x - 20) + (y - 47)*(y - 47) ) <= ((i*i)) && intensity_reg[i]) begin // bottom left circle
                         if (i < 3) begin
                             oled_data <= colour_low;
                         end else if (i < 6) begin
@@ -339,7 +340,7 @@ module Vol_Indic_Circle(
                         end 
                     end
                     
-                    if (( (x - 76)*(x - 76) + (y - 17)*(y - 17) ) <= ((i*i)) && intensity_reg[i]) begin
+                    if (( (x - 76)*(x - 76) + (y - 17)*(y - 17) ) <= ((i*i)) && intensity_reg[i]) begin // top right circle
                         if (i < 3) begin
                             oled_data <= colour_low;
                         end else if (i < 6) begin
@@ -353,7 +354,7 @@ module Vol_Indic_Circle(
                         end 
                     end
                     
-                    if (( (x - 76)*(x - 76) + (y - 47)*(y - 47) ) <= ((i*i)) && intensity_reg[i]) begin
+                    if (( (x - 76)*(x - 76) + (y - 47)*(y - 47) ) <= ((i*i)) && intensity_reg[i]) begin // bottom right circle
                         if (i < 3) begin
                             oled_data <= colour_low;
                         end else if (i < 6) begin
@@ -367,7 +368,7 @@ module Vol_Indic_Circle(
                         end 
                     end
                     
-                    if (( (x - 48)*(x - 48) + (y - 32)*(y - 32) ) <= ((i*i)) && intensity_reg[i]) begin
+                    if (( (x - 48)*(x - 48) + (y - 32)*(y - 32) ) <= ((i*i)) && intensity_reg[i]) begin // middle circle
                         if (i < 3) begin
                             oled_data <= colour_low;
                         end else if (i < 6) begin

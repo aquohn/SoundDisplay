@@ -261,7 +261,7 @@ module Vol_Indic_Ver_Bar(
             endcase
         end
         
-        if (~sw[3] && y > 2 && y < 61) begin : genbars
+        if (~sw[3] && y > 2 && y < 61) begin : genverbars
             integer i;
             for (i = 0; i < 15 ; i = i + 1) begin
                 if (x >= (3 + 6 * i) && x <= (7 + 6 * i) && intensity_reg[i] && y >= (57 - 4 * i)) begin
