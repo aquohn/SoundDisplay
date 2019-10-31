@@ -30,6 +30,9 @@ module Top_Student (
     input btnU,
     input btnD,
     
+    input mouse_data,
+    input mouse_clk,
+    
     output reg [15:0] led,
     output reg [6:0] seg,
     output reg [3:0] an,
@@ -97,6 +100,12 @@ module Top_Student (
     wire [3:0] an_circle;
     wire [15:0] oled_circle;
     
+    //output from space invader game
+    wire [15:0] led_space;
+    wire [6:0] seg_space;
+    wire [3:0] an_space;
+    wire [15:0] oled_space;
+    
     // Button debouncing
     assign btnC_signal = ~btnC_reg & btnC_pipe;
     assign btnU_signal = ~btnU_reg & btnC_pipe;
@@ -137,6 +146,11 @@ module Top_Student (
     Fractal fractal (.x(x), .y(y), .intensity(intensity_reg), .mic_clk(clk20k), .oled_clk(clk6p25m), .clk100m(clk_in),
             .led(led_fractal), .oled_data(oled_fractal), .seg(seg_fractal), .an(an_fractal));
     
+    // Space Invader Game 
+    Space_Invader space_invader (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_space), .oled_data(oled_space), .seg(seg_space),
+                .an(an_space), .x(x), .y(y), .intensity_reg(intensity_reg), .mouse_data(mouse_data), .mouse_clk(mouse_clk));      
+    
+    
     // Multiplexer to select output from chosen module
     //
     // This is a combinational always block; ensure every case gives a value for
@@ -170,6 +184,13 @@ module Top_Student (
                 oled_data = oled_circle;
                 seg = seg_circle;
                 an = an_circle;
+                dp = 1'b1;
+            end
+            4'b0101: begin
+                led = led_space;
+                oled_data = oled_space;
+                seg = seg_space;
+                an = an_space;
                 dp = 1'b1;
             end
             default: begin //default to basic functionality
