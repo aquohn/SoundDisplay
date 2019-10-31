@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "Constants.v"
 
 //////////////////////////////////////////////////////////////////////////////////
 //
@@ -58,17 +59,6 @@ module Top_Student (
     wire [12:0] pixel_index;
     wire [6:0] x;
     wire [5:0] y;
-    
-    // global macros for oled
-    `define OLED_PIXEL_END 12'd6143
-    `define OLED_HEIGHT 64
-    `define OLED_WIDTH 96
-    `define OLED_RED {5'd31, 6'd0, 5'd0} 
-    `define OLED_YELLOW {5'd31, 6'd63, 5'd0}
-    `define OLED_GREEN {5'd0, 6'd63, 5'd0}
-    `define OLED_BLUE {5'd0, 6'd0, 5'd31}
-    `define OLED_WHITE {5'd31, 6'd63, 5'd31}
-    `define OLED_BLACK {5'd0, 6'd0, 5'd0}
     
     //output from basic functionality
     wire [15:0] led_basic;

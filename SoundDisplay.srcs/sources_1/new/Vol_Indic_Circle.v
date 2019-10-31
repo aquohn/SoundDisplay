@@ -1,4 +1,6 @@
 `timescale 1ns / 1ps
+`include "Constants.v"
+
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -383,7 +385,6 @@ module Vol_Indic_Circle(
                     end
                 end
             end
-                
         end
    end
 endmodule
