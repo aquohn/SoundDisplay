@@ -85,7 +85,7 @@ module FFT(
     // TODO switch off clkena if done and waiting for next input
     // input is all positive and real, and hence is 0-padded
     xfft_0 fft_core (.aclk(clk100m), .s_axis_config_tdata(8'b00000001), .s_axis_config_tvalid(1'b1),
-    .s_axis_data_tdata({19'b0, ampl_out}), .s_axis_data_tvalid(load_fft & ~fft_reset), 
+    .s_axis_data_tdata({19'b0, ampl_out}), .s_axis_data_tvalid(ampl_rdy), 
     .s_axis_data_tlast(ampl_loaded), .s_axis_data_tready(fft_in_rdy), 
     .m_axis_data_tdata({freq_im, freq_re}), .m_axis_data_tvalid(fft_out_rdy), .m_axis_data_tready(1'b1), 
     .aresetn(~fft_reset), .m_axis_data_tlast(fft_done));    
@@ -99,6 +99,7 @@ module FFT(
     
     assign clk20k_signal = clk20k_pipe & ~clk20k_reg;
     assign fft_reset = clk20k & ~clk20k_pipe; // assert reset for 2 cycles after 20k posedge
+    assign ampl_rdy = load_fft & ~fft_reset;
      
     always @(posedge clk100m) begin
         // "debounce" positive edge of clk20k (sound updates)
@@ -118,26 +119,29 @@ module FFT(
         if (fft_reset) begin
             ampl_addr_out <= ampl_addr_in;
             load_fft <= 1'b1;
-            ampl_loaded <= 1'b0;
             load_cnt <= 10'b0;
             freq_addr <= 10'b0;
         end
         
         // read data from BRAM into FFT core
-        if (load_fft & ~fft_reset) begin
+        if (ampl_rdy) begin
             if (fft_in_rdy) begin
                 // fetch next amplitude
                 ampl_addr_out <= (ampl_addr_out == N_SUB_1) ? 10'b0 : ampl_addr_out + 1;
                 load_cnt <= load_cnt + 1;
             end
             
+            // last data
+            if (load_cnt == N_SUB_1 - 1) ampl_loaded <= 1'b1;
+            else ampl_loaded <= 1'b0;
+            
             // all data loaded
             if (load_cnt == N_SUB_1) begin
                 load_fft <= 1'b0;
-                ampl_loaded <= 1'b1;
             end
         end
         
+        // write out fft results
         if (fft_out_rdy) begin
             freq_addr <= freq_addr + 1;
         end
