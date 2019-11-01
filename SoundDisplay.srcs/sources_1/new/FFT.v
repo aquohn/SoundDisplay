@@ -67,6 +67,7 @@ module FFT(
     wire [4:0] b_sum;
     
     // fft signals
+    reg run_fft;
     reg [9:0] freq_addr;
     wire fft_done;
     reg fft_done_pipe;
@@ -80,6 +81,7 @@ module FFT(
     ampl_bram ampl_data (.clka(clk100m), .ena(1'b1), .wea(ampl_write), .addra(ampl_addr_in), .dina(ampl_in),
     .douta(ampl_old), .clkb(clk100m), .enb(1'b1), .addrb(ampl_addr_out), .doutb(mic_in), .web(1'b0));
     
+    // TODO switch off clkena if done and waiting for next input
     xfft_0 fft_core (.aclk(clk100m), .s_axis_config_tdata(8'b00000001), .s_axis_config_tvalid(1'b1),
     .s_axis_data_tdata({19'b0, ampl_out}), .s_axis_data_tvalid(ampl_valid), .s_axis_data_tlast(ampl_done),
     .s_axis_data_tready(fft_in_rdy), .m_axis_data_tdata({1'b0, freq_im, 1'b0, freq_re}), 
@@ -97,6 +99,7 @@ module FFT(
     //magnitude hack from https://openofdm.readthedocs.io/en/latest/verilog.html
     assign freq_mag = (freq_re > freq_im) ? freq_re + (freq_im << 2) : freq_im + (freq_re << 2);
     assign ampl_in = (ampl_use2) ? ampl_reg2 : ampl_reg1;
+    assign fft_reset = clk20k & ~clk20k_pipe; // assert reset for 2 cycles after 20k posedge
      
     always @(posedge clk100m) begin
         // "debounce" positive edge of clk20k (sound updates)
@@ -132,9 +135,20 @@ module FFT(
             end
         end
         
+        // if new data is available, run the fft
+        if (fft_reset) begin
+            ampl_addr_out <= ampl_pos;
+            run_fft <= 1'b1;
+        end
+        
         // read data from BRAM into FFT core
+        if (run_fft & ~fft_reset) begin
+            if (fft_in_rdy) begin
+            
+            end
+        end
         
-        
+        // delay done signal to allow last value to be added
         fft_done_pipe <= fft_done;
     end
     
