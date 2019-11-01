@@ -100,14 +100,13 @@ module FFT(
     assign clk20k_signal = clk20k_pipe & ~clk20k_reg;
     assign fft_reset = clk20k & ~clk20k_pipe & ~load_fft; // assert reset for 2 cycles after 20k posedge
     assign ampl_rdy = load_fft & ~fft_reset;
-    assign ampl_last = (load_cnt == N_SUB_1);
+    assign ampl_last = (load_cnt == N_SUB_1) & ampl_rdy & fft_in_rdy;
      
     always @(posedge clk100m) begin
         // "debounce" positive edge of clk20k (sound updates)
         clk20k_pipe <= clk20k;
         clk20k_reg <= clk20k_pipe;
         
-        // read old data out from BRAM and shift
         if (clk20k_signal) begin // read mic data
             ampl_write <= 1'b1;
             ampl_in <= mic_in; // write data over oldest entry
@@ -125,12 +124,10 @@ module FFT(
         end
         
         // read data from BRAM into FFT core
-        if (ampl_rdy) begin
-            if (fft_in_rdy) begin
-                // fetch next amplitude
-                ampl_addr_out <= (ampl_addr_out == N_SUB_1) ? 10'b0 : ampl_addr_out + 1;
-                load_cnt <= load_cnt + 1;
-            end
+        if (ampl_rdy & fft_in_rdy) begin
+            // fetch next amplitude
+            ampl_addr_out <= (ampl_addr_out == N_SUB_1) ? 10'b0 : ampl_addr_out + 1;
+            load_cnt <= load_cnt + 1;
             
             // all data loaded
             if (load_cnt == N_SUB_1) begin
