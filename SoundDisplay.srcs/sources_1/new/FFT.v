@@ -45,13 +45,14 @@ module FFT(
     output reg [4:0] b
     );
     
-    reg clk20k_reg, clk20k_pipe, load_update = 1'b0;
+    reg clk20k_reg, clk20k_pipe;
     wire clk20k_signal;
     wire fft_reset;
-    wire ampl_done;
+    reg ampl_done; // asserted with last amplitude readout
     wire fft_in_rdy, fft_out_rdy, ampl_rdy;
     
     // ampl bram signals
+    reg load_update = 1'b0; // is set if shifting BRAM data to accomodate new data point
     reg ampl_write = 1'b0, ampl_use2 = 1'b0;
     reg [9:0] ampl_pos = 10'b0; //start position of next fft data block
     reg [12:0] ampl_reg1, ampl_reg2; // store amplitude for shifting purposes
@@ -67,14 +68,15 @@ module FFT(
     wire [4:0] b_sum;
     
     // fft signals
-    reg run_fft;
-    reg [9:0] freq_addr;
-    wire fft_done;
-    reg fft_done_pipe;
-    wire [22:0] freq_re, freq_im;
-    wire [23:0] freq_mag;
+    reg load_fft; // whether or not data is being loaded into the fft
+    reg [9:0] freq_addr; // the address of the frequency data being read out
+    reg [9:0] load_cnt; // the number of amplitudes read in thus far
+    wire fft_done; // strobed on fft completion
+    reg fft_done_pipe; // strobed one cycle after fft completion
+    wire [22:0] freq_re, freq_im; // real and imaginary parts of frequency
+    wire [23:0] freq_mag; // magnitude of frequency
     
-    parameter MAX_SAMPLES = 1023;
+    parameter N_SUB_1 = 1023; // one less than the transform size
     
     // a for loading mic_in data, b for reading it into the fft core
     // can remove enable if it works without it
@@ -116,7 +118,7 @@ module FFT(
         end else if (load_update) begin // shift data down the BRAM
             ampl_write <= ~ampl_write; // alternate between read and write cycles
             if (ampl_write) begin // write cycle now, read cycle next
-                ampl_addr_in <= (ampl_addr_in == MAX_SAMPLES) ? 10'b0 : ampl_addr_in + 1;
+                ampl_addr_in <= (ampl_addr_in == N_SUB_1) ? 10'b0 : ampl_addr_in + 1;
                 if (ampl_use2) begin
                     ampl_reg1 <= ampl_old;
                 end else begin
@@ -124,9 +126,9 @@ module FFT(
                 end
                 sample_cnt <= sample_cnt + 1;
             end else begin // read cycle now, write cycle next
-                if (sample_cnt == MAX_SAMPLES) begin // last piece of data being written
+                if (sample_cnt == N_SUB_1) begin // last piece of data being written
                     // next piece of data will be written one position later
-                    ampl_pos <= (ampl_pos == MAX_SAMPLES) ? 10'b0 : ampl_pos + 1;
+                    ampl_pos <= (ampl_pos == N_SUB_1) ? 10'b0 : ampl_pos + 1;
                     load_update <= 1'b0;
                     ampl_write <= 1'b0;
                 end
@@ -138,13 +140,23 @@ module FFT(
         // if new data is available, run the fft
         if (fft_reset) begin
             ampl_addr_out <= ampl_pos;
-            run_fft <= 1'b1;
+            load_fft <= 1'b1;
+            ampl_done <= 1'b0;
+            load_cnt <= 10'b0;
         end
         
         // read data from BRAM into FFT core
-        if (run_fft & ~fft_reset) begin
+        if (load_fft & ~fft_reset) begin
             if (fft_in_rdy) begin
+                // fetch next amplitude
+                ampl_addr_out <= (ampl_addr_out == N_SUB_1) ? 10'b0 : ampl_addr_out + 1;
+                load_cnt <= load_cnt + 1;
+            end
             
+            // all data loaded
+            if (load_cnt <= N_SUB_1) begin
+                load_fft <= 1'b0;
+                ampl_done <= 1'b1;
             end
         end
         
