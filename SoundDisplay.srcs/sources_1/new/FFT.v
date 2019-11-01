@@ -61,9 +61,9 @@ module FFT(
     wire [12:0] ampl_out; // amplitude value read out to fft
     
     // running totals of colours
-    (* mark_debug = "true" *) wire [31:0] r_sum;
-    (* mark_debug = "true" *) wire [32:0] g_sum;
-    (* mark_debug = "true" *) wire [31:0] b_sum;
+    wire [31:0] r_sum;
+    wire [32:0] g_sum;
+    wire [31:0] b_sum;
     
     // fft signals
     reg [9:0] freq_addr = 10'b0; // the address of the frequency data being read out

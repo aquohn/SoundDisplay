@@ -61,9 +61,9 @@ module Top_Student (
     wire [5:0] y;
     
     // output from FFT
-    (* mark_debug = "true" *) wire [4:0] r;
-    (* mark_debug = "true" *) wire [5:0] g;
-    (* mark_debug = "true" *) wire [4:0] b;
+    wire [4:0] r;
+    wire [5:0] g;
+    wire [4:0] b;
     
     //output from basic functionality
     wire [15:0] led_basic;
