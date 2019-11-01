@@ -60,6 +60,11 @@ module Top_Student (
     wire [6:0] x;
     wire [5:0] y;
     
+    // output from FFT
+    wire [4:0] r;
+    wire [5:0] g;
+    wire [4:0] b;
+    
     //output from basic functionality
     wire [15:0] led_basic;
     wire [6:0] seg_basic;
@@ -116,6 +121,9 @@ module Top_Student (
         .frame_begin(frame_begin), .pixel_index(pixel_index));
     Coord_Sys coord_sys (.pixel_index(pixel_index), .x(x), .y(y));
     
+    // FFT module
+    FFT fft (.clk100m(clk_in), .clk20k(clk20k), .mic_in(mic_in), .r(r), .g(g), .b(b));
+    
     // Basic functionality module
     Vol_Indic vol_indic (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
             .an(an_basic), .x(x), .y(y), .intensity_reg(intensity_reg));
@@ -133,8 +141,8 @@ module Top_Student (
                 .an(an_circle), .x(x), .y(y), .intensity_reg(intensity_reg));
             
     // Fractal visualiser module
-    /*Fractal fractal (.x(x), .y(y), .intensity(intensity_reg), .mic_clk(clk20k), .oled_clk(clk6p25m), .clk100m(clk_in),
-            .led(led_fractal), .oled_data(oled_fractal), .seg(seg_fractal), .an(an_fractal));*/
+    Fractal fractal (.x(x), .y(y), .r(r), .g(g), .b(b), .mic_clk(clk20k), .oled_clk(clk6p25m), .clk100m(clk_in),
+            .led(led_fractal), .oled_data(oled_fractal), .seg(seg_fractal), .an(an_fractal));
     
     // Space Invader Game 
     Space_Invader space_invader (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_space), .oled_data(oled_space), .seg(seg_space),
@@ -207,9 +215,9 @@ module Top_Student (
         
         if (sw[15]) begin
             if (btnD_signal) begin
-                sys_mode <= (sys_mode == 4'b0000) ? MODE_MAX : sys_mode - 1;
-            end else if (btnU_signal) begin
                 sys_mode <= (sys_mode == MODE_MAX) ? 4'b0000 : sys_mode + 1;
+            end else if (btnU_signal) begin
+                sys_mode <= (sys_mode == 4'b0000) ? MODE_MAX : sys_mode - 1;
             end
         end
     end
