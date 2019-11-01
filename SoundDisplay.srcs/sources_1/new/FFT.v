@@ -53,8 +53,9 @@ module FFT(
     
     // ampl bram signals
     reg ampl_write = 1'b0, ampl_use2 = 1'b0;
+    reg [9:0] ampl_pos = 10'b0; //start position of next fft data block
+    reg [12:0] ampl_reg1, ampl_reg2; // store amplitude for shifting purposes
     wire [12:0] ampl_in; //amplitude selected to be written
-    reg [12:0] ampl_reg1, ampl_reg2; // store amplitude for shirting purposes
     reg [9:0] sample_cnt = 10'b0; // number of data points shifted so fat
     reg [9:0] ampl_addr_in, ampl_addr_out;
     wire [12:0] ampl_out; // amplitude value read out to fft
@@ -101,13 +102,14 @@ module FFT(
         // "debounce" positive edge of clk20k (sound updates)
         clk20k_pipe <= clk20k;
         clk20k_reg <= clk20k_pipe;
-        if (clk20k_signal) load_update <= 1; // begin loading new audio data
         
         // read old data out from BRAM and shift
         if (clk20k_signal) begin // read mic data
+            load_update <= 1; // begin loading new audio data
             ampl_reg1 <= mic_in;
             ampl_reg2 <= ampl_old;
-            ampl_write <= 1'b0;            
+            ampl_write <= 1'b0;
+            ampl_addr_in <= ampl_pos;
         end else if (load_update) begin // shift data down the BRAM
             ampl_write <= ~ampl_write; // alternate between read and write cycles
             if (ampl_write) begin // write cycle now, read cycle next
@@ -117,11 +119,11 @@ module FFT(
                 end else begin
                     ampl_reg2 <= ampl_old;
                 end
-                sample_cnt <= (sample_cnt == MAX_SAMPLES) ? 10'b0 : sample_cnt + 1;
+                sample_cnt <= sample_cnt + 1;
             end else begin // read cycle now, write cycle next
                 if (sample_cnt == MAX_SAMPLES) begin // last piece of data being written
                     // next piece of data will be written one position later
-                    ampl_addr_in <= (ampl_addr_in == MAX_SAMPLES) ? 10'b0 : ampl_addr_in + 1;
+                    ampl_pos <= (ampl_pos == MAX_SAMPLES) ? 10'b0 : ampl_pos + 1;
                     load_update <= 1'b0;
                     ampl_write <= 1'b0;
                 end
