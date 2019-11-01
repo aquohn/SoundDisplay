@@ -67,7 +67,7 @@ module Top_Student (
     wire [22:0] freq_re_abs; 
     wire [22:0] freq_im_abs; 
     wire [23:0] freq_mag; // magnitude of frequency
-    wire [9:0] freq_addr = 10'b0; // the address of the frequency data being read out
+    wire [9:0] freq_addr; // the address of the frequency data being read out
     wire fft_done; // strobed on fft completion
     wire fft_out_rdy; // asserted when there is valid data from the fft
     

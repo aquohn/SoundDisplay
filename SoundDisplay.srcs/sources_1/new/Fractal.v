@@ -64,7 +64,7 @@ module Fractal(
     
     // accumalate the FFT outputs
     (* use_dsp = "yes" *) Freq_To_Colour freq_to_colour (.clk(clk100m), .we(fft_out_rdy),
-    .reset(fft_done_pipe), .addr(freq_addr), .freq_mag(freq_mag), .r(r), .g(g), .b(b)); 
+    .start(fft_done_pipe), .addr(freq_addr), .freq_mag(freq_mag), .r(r), .g(g), .b(b)); 
     
     always @(posedge clk20) begin
         frame_r <= r;
