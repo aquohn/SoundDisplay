@@ -48,7 +48,7 @@ module FFT(
     reg clk20k_reg, clk20k_pipe, load_update = 1'b0;
     wire clk20k_signal;
     wire fft_reset;
-    wire ampl_valid, ampl_done;
+    wire ampl_done;
     wire fft_in_rdy, fft_out_rdy, ampl_rdy;
     
     // ampl bram signals
@@ -83,7 +83,7 @@ module FFT(
     
     // TODO switch off clkena if done and waiting for next input
     xfft_0 fft_core (.aclk(clk100m), .s_axis_config_tdata(8'b00000001), .s_axis_config_tvalid(1'b1),
-    .s_axis_data_tdata({19'b0, ampl_out}), .s_axis_data_tvalid(ampl_valid), .s_axis_data_tlast(ampl_done),
+    .s_axis_data_tdata({19'b0, ampl_out}), .s_axis_data_tvalid(1'b1), .s_axis_data_tlast(ampl_done),
     .s_axis_data_tready(fft_in_rdy), .m_axis_data_tdata({1'b0, freq_im, 1'b0, freq_re}), 
     .m_axis_data_tvalid(fft_out_rdy), .m_axis_data_tready(1'b1), .aresetn(~fft_reset), 
     .m_axis_data_tlast(fft_done));    
