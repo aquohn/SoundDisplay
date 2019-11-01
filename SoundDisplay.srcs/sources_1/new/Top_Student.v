@@ -61,9 +61,15 @@ module Top_Student (
     wire [5:0] y;
     
     // output from FFT
-    wire [4:0] r;
-    wire [5:0] g;
-    wire [4:0] b;
+    wire [23:0] freq_re; 
+    wire [23:0] freq_im; 
+    // real and imaginary parts of frequency
+    wire [22:0] freq_re_abs; 
+    wire [22:0] freq_im_abs; 
+    wire [23:0] freq_mag; // magnitude of frequency
+    wire [9:0] freq_addr = 10'b0; // the address of the frequency data being read out
+    wire fft_done; // strobed on fft completion
+    wire fft_out_rdy; // asserted when there is valid data from the fft
     
     //output from basic functionality
     wire [15:0] led_basic;
@@ -122,7 +128,9 @@ module Top_Student (
     Coord_Sys coord_sys (.pixel_index(pixel_index), .x(x), .y(y));
     
     // FFT module
-    FFT fft (.clk100m(clk_in), .clk20k(clk20k), .mic_in(mic_in), .r(r), .g(g), .b(b));
+    FFT fft (.clk100m(clk_in), .clk20k(clk20k), .mic_in(mic_in), .freq_mag(freq_mag),
+        .freq_addr(freq_addr), .fft_done(fft_done), .fft_out_rdy(fft_out_rdy),
+        .freq_re(freq_re), .freq_im(freq_im), .freq_re_abs(freq_re_abs), .freq_im_abs(freq_im_abs)); 
     
     // Basic functionality module
     Vol_Indic vol_indic (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
@@ -141,7 +149,8 @@ module Top_Student (
                 .an(an_circle), .x(x), .y(y), .intensity_reg(intensity_reg));
             
     // Fractal visualiser module
-    Fractal fractal (.x(x), .y(y), .r(r), .g(g), .b(b), .mic_clk(clk20k), .oled_clk(clk6p25m), .clk100m(clk_in),
+    Fractal fractal (.x(x), .freq_mag(freq_mag), .freq_addr(freq_addr), .fft_done(fft_done), 
+            .fft_out_rdy(fft_out_rdy), .mic_clk(clk20k), .oled_clk(clk6p25m), .clk100m(clk_in),
             .led(led_fractal), .oled_data(oled_fractal), .seg(seg_fractal), .an(an_fractal), 
             .frame_begin(frame_begin), .clk20(clk20));
     

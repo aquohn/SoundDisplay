@@ -40,16 +40,23 @@ module FFT(
     input clk100m,
     input clk20k,
     input [11:0] mic_in,
-    output reg [4:0] r = 5'b0,
-    output reg [5:0] g = 6'b0,
-    output reg [4:0] b = 5'b0
+    // real and imaginary parts of frequency
+    output [23:0] freq_re, 
+    output [23:0] freq_im, 
+    // real and imaginary parts of frequency
+    output [22:0] freq_re_abs, 
+    output [22:0] freq_im_abs, 
+    output [23:0] freq_mag, // magnitude of frequency
+    output reg [9:0] freq_addr = 10'b0, // the address of the frequency data being read out
+    output fft_done, // strobed on fft completion
+    output fft_out_rdy
     );
     
     reg clk20k_reg, clk20k_pipe;
     wire clk20k_signal;
     wire fft_reset;
     wire ampl_last; // asserted with last amplitude readout
-    wire fft_in_rdy, fft_out_rdy;
+    wire fft_in_rdy;
     reg fft_wait; // set while waiting for fft to complete 
     
     // ampl bram signals
@@ -60,20 +67,10 @@ module FFT(
     reg [9:0] ampl_addr_in = 10'b0; // the address to write amplitude data to
     wire [12:0] ampl_out; // amplitude value read out to fft
     
-    // running totals of colours
-    wire [31:0] r_sum;
-    wire [32:0] g_sum;
-    wire [31:0] b_sum;
-    
     // fft signals
-    reg [9:0] freq_addr = 10'b0; // the address of the frequency data being read out
     reg [9:0] load_cnt = 10'b0; // the number of amplitudes read in thus far
     reg [9:0] ampl_addr_out = 10'b0; // the address from which to read amplitude data
-    wire fft_done; // strobed on fft completion
     reg fft_done_pipe; // strobed one cycle after fft completion
-    wire [23:0] freq_re, freq_im; // real and imaginary parts of frequency
-    wire [22:0] freq_re_abs, freq_im_abs; // real and imaginary parts of frequency
-    wire [23:0] freq_mag; // magnitude of frequency
     
     parameter N_SUB_1 = 1023; // one less than the transform size
     
@@ -136,24 +133,10 @@ module FFT(
         fft_done_pipe <= fft_done;
     end
     
-    // accumalate the FFT outputs
-    (* use_dsp = "yes" *) Freq_To_Colour freq_to_colour (.clk(clk100m), .we(fft_out_rdy),
-    .reset(fft_done_pipe), .addr(freq_addr), .freq_mag(freq_mag), .r_sum({r_sum}), 
-    .g_sum({g_sum}), .b_sum({b_sum})); 
-    
     //magnitude hack from https://openofdm.readthedocs.io/en/latest/verilog.html
     
     assign freq_re_abs = (freq_re[23]) ? ~(freq_re[22:0]) + 1 : freq_re[22:0];
     assign freq_im_abs = (freq_im[23]) ? ~(freq_im[22:0]) + 1 : freq_im[22:0];
     assign freq_mag = (freq_re_abs > freq_im_abs) ? freq_re_abs + (freq_im_abs[22:2]) : freq_im_abs + (freq_re_abs[22:2]);
-        
-     always @(posedge clk100m) begin
-        // update the RGB values being presented
-        if (fft_done_pipe) begin
-            r <= r_sum[19:15];
-            g <= g_sum[19:14];
-            b <= b_sum[19:15];
-        end
-     end
     
 endmodule
