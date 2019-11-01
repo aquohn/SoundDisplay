@@ -57,12 +57,16 @@ module FFT(
     reg [9:0] ampl_pos = 10'b0;
     reg [9:0] ampl_addr_in, ampl_addr_out, freq_addr_in, freq_addr_out;
     wire [12:0] ampl_out, ampl_old;
+    
+    wire [4:0] r_sum;
+    wire [5:0] g_sum;
+    wire [4:0] b_sum;
+    
+    // fft results
     wire [22:0] freq_re, freq_im;
     wire [23:0] freq_mag;
     
     parameter MAX_SAMPLES = 1023;
-    parameter RED_LIMIT = 341;
-    parameter GREEN_LIMIT = 683;
     
     // a for loading mic_in data, b for reading it into the fft core
     // can remove enable if it works without it
@@ -116,17 +120,12 @@ module FFT(
             end
         end
         
+        // accumalate the FFT outputs
+        (* use_dsp48 = "yes" *) Freq_To_Colour freq_to_colour (
+        
         // read data from BRAM into FFT core
         
-        // add freq values to colour fields
         
-        if (ampl_addr_out < RED_LIMIT) begin
-            
-        end else if (ampl_addr_out < GREEN_LIMIT) begin
-           
-        end else begin
-        
-        end        
     end
     
 endmodule
