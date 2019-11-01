@@ -1,0 +1,132 @@
+`timescale 1ns / 1ps
+`include "Constants.v"
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 22.10.2019 22:50:20
+// Design Name: 
+// Module Name: FFT
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+/* Basic sketch of idea: Create a 1024-bit BRAM to serve as an "addressable shift register" and
+ * write into it at 20kHz. Whenever a sound value is registered, recalculate the FFT at 100MHz. Whenever
+ * the FFT is recalculated, send a "new signal" value for one cycle to tell the outside world to process
+ * the new signal. The whole process of update sample - recalculate FFT - recalculate end user value
+ * should complete within 0.016s - the period for the 60Hz OLED update.
+ *
+ * Space invaders: group frequencies into 3: low frequency for red, middle frequency for green, 
+ * high frequency for blue. Calculate the magnitude^2 (real^2 + im^2) of each frequency value (or use CORDIC
+ * core to get actual magnitude?), and scale the sum of each bin to 31/63. Use the resultant RGB value as the
+ * background, and the complementary colour (~colour) as the stage (player, bullets etc.).
+ *
+ * Fractals: iteration count is mapped to several colours. Use the same matching of frequency to colour, but split
+ * into levels. Each level increases the value of R by 1, G by 2 or B by 1
+ */
+
+module FFT(
+    input clk100m,
+    input clk20k,
+    input [12:0] mic_in,
+    output reg [4:0] r,
+    output reg [5:0] g,
+    output reg [4:0] b
+    );
+    
+    reg clk20k_reg, clk20k_pipe, load_update = 1'b0;
+    wire clk20k_signal;
+    wire fft_reset;
+    wire ampl_valid, ampl_done;
+    wire fft_in_rdy, fft_out_rdy, ampl_rdy, freq_rdy;
+    
+    reg ampl_write = 1'b0, ampl_use2 = 1'b0;
+    reg [12:0] ampl_reg1, ampl_reg2, ampl_in;
+    reg [9:0] sample_cnt = 10'b0;
+    reg [9:0] ampl_pos = 10'b0;
+    reg [9:0] ampl_addr_in, ampl_addr_out, freq_addr_in, freq_addr_out;
+    wire [12:0] ampl_out, ampl_old;
+    wire [22:0] freq_re, freq_im;
+    wire [23:0] freq_mag;
+    
+    parameter MAX_SAMPLES = 1023;
+    parameter RED_LIMIT = 341;
+    parameter GREEN_LIMIT = 683;
+    
+    // a for loading mic_in data, b for reading it into the fft core
+    // can remove enable if it works without it
+    ampl_bram ampl_data (.clka(clk100m), .ena(1'b1), .wea(ampl_write), .addra(ampl_addr_in), .dina(ampl_in),
+    .douta(ampl_old), .clkb(clk100m), .enb(1'b1), .addrb(ampl_addr_out), .doutb(mic_in), .web(1'b0));
+    
+    xfft_0 fft_core (.aclk(clk100m), .s_axis_config_tdata(8'b00000001), .s_axis_config_tvalid(1'b1),
+    .s_axis_data_tdata({19'b0, ampl_out}), .s_axis_data_tvalid(ampl_valid), .s_axis_data_tlast(ampl_done),
+    .s_axis_data_tready(fft_in_rdy), .m_axis_data_tdata({1'b0, freq_im, 1'b0, freq_re}), 
+    .m_axis_data_tvalid(fft_out_rdy), .m_axis_data_tready(1'b1), .aresetn(~fft_reset));    
+    
+    /*
+      input [7:0]s_axis_config_tdata; //1 for forward, 0 for inverse
+      input s_axis_config_tvalid; //tie to 1, config doesn't change
+      output s_axis_config_tready; //ignore, config doesn't change
+      input [31:0]s_axis_data_tdata; // im and real parts
+    */
+    
+    assign clk20k_signal = clk20k_pipe & ~clk20k_reg;
+    //magnitude hack from https://openofdm.readthedocs.io/en/latest/verilog.html
+    assign freq_mag = (freq_re > freq_im) ? freq_re + (freq_im << 2) : freq_im + (freq_re << 2);
+     
+    always @(posedge clk100m) begin
+        // "debounce" positive edge of clk20k (sound updates)
+        clk20k_pipe <= clk20k;
+        clk20k_reg <= clk20k_pipe;
+        if (clk20k_signal) load_update <= 1; // begin loading new audio data
+        
+        // read old data out from BRAM and shift
+        if (clk20k_signal) begin // read mic data
+            ampl_reg1 <= mic_in;
+            ampl_reg2 <= ampl_old;
+            ampl_write <= 1'b0;            
+        end else if (load_update) begin // shift data down the BRAM
+            ampl_write <= ~ampl_write; // alternate between read and write cycles
+            if (ampl_write) begin // write cycle now, read cycle next
+                ampl_addr_in <= (ampl_addr_in == MAX_SAMPLES) ? 10'b0 : ampl_addr_in + 1;
+                if (ampl_use2) begin
+                    ampl_reg1 <= ampl_old;
+                end else begin
+                    ampl_reg2 <= ampl_old;
+                end
+            end else begin // read cycle now, write cycle next
+                ampl_in <= (ampl_use2) ? ampl_reg2 : ampl_reg1;
+                if (ampl_addr_in == MAX_SAMPLES) begin // last piece of data being written
+                    load_update <= 1'b0;
+                    sample_cnt <= (sample_cnt == MAX_SAMPLES) ? 10'b0 : sample_cnt + 1;
+                    ampl_write <= 1'b0;
+                end
+                ampl_use2 <= ~ampl_use2;
+            end
+        end
+        
+        // read data from BRAM into FFT core
+        
+        // add freq values to colour fields
+        
+        if (ampl_addr_out < RED_LIMIT) begin
+            
+        end else if (ampl_addr_out < GREEN_LIMIT) begin
+           
+        end else begin
+        
+        end        
+    end
+    
+endmodule
