@@ -49,20 +49,26 @@ module FFT(
     wire clk20k_signal;
     wire fft_reset;
     wire ampl_valid, ampl_done;
-    wire fft_in_rdy, fft_out_rdy, ampl_rdy, freq_rdy;
+    wire fft_in_rdy, fft_out_rdy, ampl_rdy;
     
+    // ampl bram signals
     reg ampl_write = 1'b0, ampl_use2 = 1'b0;
-    reg [12:0] ampl_reg1, ampl_reg2, ampl_in;
-    reg [9:0] sample_cnt = 10'b0;
-    reg [9:0] ampl_pos = 10'b0;
-    reg [9:0] ampl_addr_in, ampl_addr_out, freq_addr_in, freq_addr_out;
-    wire [12:0] ampl_out, ampl_old;
+    wire [12:0] ampl_in; //amplitude selected to be written
+    reg [12:0] ampl_reg1, ampl_reg2; // store amplitude for shirting purposes
+    reg [9:0] sample_cnt = 10'b0; // number of data points shifted so fat
+    reg [9:0] ampl_addr_in, ampl_addr_out;
+    wire [12:0] ampl_out; // amplitude value read out to fft
+    wire [12:0] ampl_old; // amplitude value read out for shifting
     
+    // running totals of colours
     wire [4:0] r_sum;
     wire [5:0] g_sum;
     wire [4:0] b_sum;
     
-    // fft results
+    // fft signals
+    reg [9:0] freq_addr;
+    wire fft_done;
+    reg fft_done_pipe;
     wire [22:0] freq_re, freq_im;
     wire [23:0] freq_mag;
     
@@ -76,7 +82,8 @@ module FFT(
     xfft_0 fft_core (.aclk(clk100m), .s_axis_config_tdata(8'b00000001), .s_axis_config_tvalid(1'b1),
     .s_axis_data_tdata({19'b0, ampl_out}), .s_axis_data_tvalid(ampl_valid), .s_axis_data_tlast(ampl_done),
     .s_axis_data_tready(fft_in_rdy), .m_axis_data_tdata({1'b0, freq_im, 1'b0, freq_re}), 
-    .m_axis_data_tvalid(fft_out_rdy), .m_axis_data_tready(1'b1), .aresetn(~fft_reset));    
+    .m_axis_data_tvalid(fft_out_rdy), .m_axis_data_tready(1'b1), .aresetn(~fft_reset), 
+    .m_axis_data_tlast(fft_done));    
     
     /*
       input [7:0]s_axis_config_tdata; //1 for forward, 0 for inverse
@@ -88,6 +95,7 @@ module FFT(
     assign clk20k_signal = clk20k_pipe & ~clk20k_reg;
     //magnitude hack from https://openofdm.readthedocs.io/en/latest/verilog.html
     assign freq_mag = (freq_re > freq_im) ? freq_re + (freq_im << 2) : freq_im + (freq_re << 2);
+    assign ampl_in = (ampl_use2) ? ampl_reg2 : ampl_reg1;
      
     always @(posedge clk100m) begin
         // "debounce" positive edge of clk20k (sound updates)
@@ -109,23 +117,37 @@ module FFT(
                 end else begin
                     ampl_reg2 <= ampl_old;
                 end
+                sample_cnt <= (sample_cnt == MAX_SAMPLES) ? 10'b0 : sample_cnt + 1;
             end else begin // read cycle now, write cycle next
-                ampl_in <= (ampl_use2) ? ampl_reg2 : ampl_reg1;
-                if (ampl_addr_in == MAX_SAMPLES) begin // last piece of data being written
+                if (sample_cnt == MAX_SAMPLES) begin // last piece of data being written
+                    // next piece of data will be written one position later
+                    ampl_addr_in <= (ampl_addr_in == MAX_SAMPLES) ? 10'b0 : ampl_addr_in + 1;
                     load_update <= 1'b0;
-                    sample_cnt <= (sample_cnt == MAX_SAMPLES) ? 10'b0 : sample_cnt + 1;
                     ampl_write <= 1'b0;
                 end
                 ampl_use2 <= ~ampl_use2;
+                sample_cnt <= 10'b0;
             end
         end
-        
-        // accumalate the FFT outputs
-        (* use_dsp48 = "yes" *) Freq_To_Colour freq_to_colour (
         
         // read data from BRAM into FFT core
         
         
+        fft_done_pipe <= fft_done;
     end
+    
+    // accumalate the FFT outputs
+    (* use_dsp48 = "yes" *) Freq_To_Colour freq_to_colour (.clk(clk100m), .we(fft_out_rdy),
+    .reset(fft_done_pipe), .addr(freq_addr), .freq_mag(freq_mag), .r_sum({30'b0, r_sum}), 
+    .g_sum({29'b0, g_sum}), .b_sum({30'b0, b_sum})); 
+        
+     always @(posedge clk100m) begin
+        // update the RGB values being presented
+        if (fft_done_pipe) begin
+            r <= r_sum[31:27];
+            g <= g_sum[31:26];
+            b <= b_sum[31:27];
+        end
+     end
     
 endmodule
