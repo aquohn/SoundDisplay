@@ -56,13 +56,11 @@
 //----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
 ampl_bram your_instance_name (
   .clka(clka),    // input wire clka
-  .ena(ena),      // input wire ena
   .wea(wea),      // input wire [0 : 0] wea
   .addra(addra),  // input wire [9 : 0] addra
   .dina(dina),    // input wire [12 : 0] dina
   .douta(douta),  // output wire [12 : 0] douta
   .clkb(clkb),    // input wire clkb
-  .enb(enb),      // input wire enb
   .web(web),      // input wire [0 : 0] web
   .addrb(addrb),  // input wire [9 : 0] addrb
   .dinb(dinb),    // input wire [12 : 0] dinb

@@ -83,8 +83,8 @@ module FFT(
     
     // a for loading mic_in data, b for reading it into the fft core
     // can remove enable if it works without it
-    ampl_bram ampl_data (.clka(clk100m), .ena(1'b1), .wea(ampl_write), .addra(ampl_addr_in), .dina(ampl_in),
-    .douta(ampl_old), .clkb(clk100m), .enb(1'b1), .addrb(ampl_addr_out), .doutb(ampl_out), .web(1'b0));
+    ampl_bram ampl_data (.clka(clk100m), .wea(ampl_write), .addra(ampl_addr_in), .dina(ampl_in),
+    .douta(ampl_old), .clkb(clk100m), .addrb(ampl_addr_out), .doutb(ampl_out), .web(1'b0));
     
     // TODO switch off clkena if done and waiting for next input
     // input is all positive and real, and hence is 0-padded
