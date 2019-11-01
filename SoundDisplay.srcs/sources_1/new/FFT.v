@@ -57,8 +57,8 @@ module FFT(
     reg [9:0] ampl_pos = 10'b0; //start position of next fft data block
     reg [12:0] ampl_reg1, ampl_reg2; // store amplitude for shifting purposes
     wire [12:0] ampl_in; //amplitude selected to be written
-    reg [9:0] sample_cnt = 10'b0; // number of data points shifted so fat
-    reg [9:0] ampl_addr_in, ampl_addr_out;
+    reg [9:0] sample_cnt = 10'b0; // number of data points shifted so far
+    reg [9:0] ampl_addr_in = 10'b0; // the address to write amplitude data to
     wire [12:0] ampl_out; // amplitude value read out to fft
     wire [12:0] ampl_old; // amplitude value read out for shifting
     
@@ -69,8 +69,9 @@ module FFT(
     
     // fft signals
     reg load_fft; // whether or not data is being loaded into the fft
-    reg [9:0] freq_addr; // the address of the frequency data being read out
-    reg [9:0] load_cnt; // the number of amplitudes read in thus far
+    reg [9:0] freq_addr = 10'b0; // the address of the frequency data being read out
+    reg [9:0] load_cnt = 10'b0; // the number of amplitudes read in thus far
+    reg [9:0] ampl_addr_out = 10'b0; // the addres from which to read amplitude data
     wire fft_done; // strobed on fft completion
     reg fft_done_pipe; // strobed one cycle after fft completion
     wire [22:0] freq_re, freq_im; // real and imaginary parts of frequency
@@ -143,6 +144,7 @@ module FFT(
             load_fft <= 1'b1;
             ampl_done <= 1'b0;
             load_cnt <= 10'b0;
+            freq_addr <= 10'b0;
         end
         
         // read data from BRAM into FFT core
@@ -158,6 +160,10 @@ module FFT(
                 load_fft <= 1'b0;
                 ampl_done <= 1'b1;
             end
+        end
+        
+        if (fft_out_rdy) begin
+            freq_addr <= freq_addr + 1;
         end
         
         // delay done signal to allow last value to be added
