@@ -106,11 +106,11 @@ module FFT(
         clk20k_reg <= clk20k_pipe;
         
         if (clk20k_signal) begin // read mic data
+            ampl_addr_in <= (ampl_addr_in == N_SUB_1) ? 10'b0 : ampl_addr_in + 1;
             ampl_write <= 1'b1;
             ampl_in <= mic_in; // write data over oldest entry
         end else if (ampl_write) begin // advance pointer to next-oldest entry
             ampl_write <= 1'b0;
-            ampl_addr_in <= (ampl_addr_in == N_SUB_1) ? 10'b0 : ampl_addr_in + 1;
         end
         
         // read data from BRAM into FFT core
