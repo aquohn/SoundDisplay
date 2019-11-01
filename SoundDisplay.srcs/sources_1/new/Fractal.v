@@ -26,6 +26,7 @@ module Fractal(
     input mic_clk,
     input oled_clk,
     input clk100m,
+    input clk20,
     input frame_begin,
     input [4:0] r,
     input [5:0] g,
@@ -50,12 +51,10 @@ module Fractal(
         an = 4'b1111;
     end
     
-    always @(posedge clk100m) begin
-        if (frame_begin) begin
-            frame_r <= r;
-            frame_b <= b;
-            frame_g <= g;
-        end
+    always @(posedge clk20) begin
+        frame_r <= r;
+        frame_b <= b;
+        frame_g <= g;
     end
     
 endmodule

@@ -143,7 +143,7 @@ module Top_Student (
     // Fractal visualiser module
     Fractal fractal (.x(x), .y(y), .r(r), .g(g), .b(b), .mic_clk(clk20k), .oled_clk(clk6p25m), .clk100m(clk_in),
             .led(led_fractal), .oled_data(oled_fractal), .seg(seg_fractal), .an(an_fractal), 
-            .frame_begin(frame_begin));
+            .frame_begin(frame_begin), .clk20(clk20));
     
     // Space Invader Game 
     Space_Invader space_invader (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_space), .oled_data(oled_space), .seg(seg_space),

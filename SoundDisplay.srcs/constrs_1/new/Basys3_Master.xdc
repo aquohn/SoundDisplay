@@ -292,6 +292,7 @@ set_property PULLUP true [get_ports mouse_data]
 
 
 
+
 create_debug_core u_ila_0 ila
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_0]
 set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_0]
@@ -304,28 +305,28 @@ set_property C_TRIGOUT_EN false [get_debug_cores u_ila_0]
 set_property port_width 1 [get_debug_ports u_ila_0/clk]
 connect_debug_port u_ila_0/clk [get_nets [list clk_in_IBUF_BUFG]]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe0]
-set_property port_width 34 [get_debug_ports u_ila_0/probe0]
-connect_debug_port u_ila_0/probe0 [get_nets [list {fft/b_sum[0]} {fft/b_sum[1]} {fft/b_sum[2]} {fft/b_sum[3]} {fft/b_sum[4]} {fft/b_sum[5]} {fft/b_sum[6]} {fft/b_sum[7]} {fft/b_sum[8]} {fft/b_sum[9]} {fft/b_sum[10]} {fft/b_sum[11]} {fft/b_sum[12]} {fft/b_sum[13]} {fft/b_sum[14]} {fft/b_sum[15]} {fft/b_sum[16]} {fft/b_sum[17]} {fft/b_sum[18]} {fft/b_sum[19]} {fft/b_sum[20]} {fft/b_sum[21]} {fft/b_sum[22]} {fft/b_sum[23]} {fft/b_sum[24]} {fft/b_sum[25]} {fft/b_sum[26]} {fft/b_sum[27]} {fft/b_sum[28]} {fft/b_sum[29]} {fft/b_sum[30]} {fft/b_sum[31]} {fft/b_sum[32]} {fft/b_sum[33]}]]
+set_property port_width 6 [get_debug_ports u_ila_0/probe0]
+connect_debug_port u_ila_0/probe0 [get_nets [list {g[0]} {g[1]} {g[2]} {g[3]} {g[4]} {g[5]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe1]
-set_property port_width 34 [get_debug_ports u_ila_0/probe1]
-connect_debug_port u_ila_0/probe1 [get_nets [list {fft/g_sum[0]} {fft/g_sum[1]} {fft/g_sum[2]} {fft/g_sum[3]} {fft/g_sum[4]} {fft/g_sum[5]} {fft/g_sum[6]} {fft/g_sum[7]} {fft/g_sum[8]} {fft/g_sum[9]} {fft/g_sum[10]} {fft/g_sum[11]} {fft/g_sum[12]} {fft/g_sum[13]} {fft/g_sum[14]} {fft/g_sum[15]} {fft/g_sum[16]} {fft/g_sum[17]} {fft/g_sum[18]} {fft/g_sum[19]} {fft/g_sum[20]} {fft/g_sum[21]} {fft/g_sum[22]} {fft/g_sum[23]} {fft/g_sum[24]} {fft/g_sum[25]} {fft/g_sum[26]} {fft/g_sum[27]} {fft/g_sum[28]} {fft/g_sum[29]} {fft/g_sum[30]} {fft/g_sum[31]} {fft/g_sum[32]} {fft/g_sum[33]}]]
+set_property port_width 5 [get_debug_ports u_ila_0/probe1]
+connect_debug_port u_ila_0/probe1 [get_nets [list {b[0]} {b[1]} {b[2]} {b[3]} {b[4]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe2]
-set_property port_width 34 [get_debug_ports u_ila_0/probe2]
-connect_debug_port u_ila_0/probe2 [get_nets [list {fft/r_sum[0]} {fft/r_sum[1]} {fft/r_sum[2]} {fft/r_sum[3]} {fft/r_sum[4]} {fft/r_sum[5]} {fft/r_sum[6]} {fft/r_sum[7]} {fft/r_sum[8]} {fft/r_sum[9]} {fft/r_sum[10]} {fft/r_sum[11]} {fft/r_sum[12]} {fft/r_sum[13]} {fft/r_sum[14]} {fft/r_sum[15]} {fft/r_sum[16]} {fft/r_sum[17]} {fft/r_sum[18]} {fft/r_sum[19]} {fft/r_sum[20]} {fft/r_sum[21]} {fft/r_sum[22]} {fft/r_sum[23]} {fft/r_sum[24]} {fft/r_sum[25]} {fft/r_sum[26]} {fft/r_sum[27]} {fft/r_sum[28]} {fft/r_sum[29]} {fft/r_sum[30]} {fft/r_sum[31]} {fft/r_sum[32]} {fft/r_sum[33]}]]
+set_property port_width 5 [get_debug_ports u_ila_0/probe2]
+connect_debug_port u_ila_0/probe2 [get_nets [list {r[0]} {r[1]} {r[2]} {r[3]} {r[4]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe3]
-set_property port_width 5 [get_debug_ports u_ila_0/probe3]
-connect_debug_port u_ila_0/probe3 [get_nets [list {b[0]} {b[1]} {b[2]} {b[3]} {b[4]}]]
+set_property port_width 32 [get_debug_ports u_ila_0/probe3]
+connect_debug_port u_ila_0/probe3 [get_nets [list {fft/r_sum[0]} {fft/r_sum[1]} {fft/r_sum[2]} {fft/r_sum[3]} {fft/r_sum[4]} {fft/r_sum[5]} {fft/r_sum[6]} {fft/r_sum[7]} {fft/r_sum[8]} {fft/r_sum[9]} {fft/r_sum[10]} {fft/r_sum[11]} {fft/r_sum[12]} {fft/r_sum[13]} {fft/r_sum[14]} {fft/r_sum[15]} {fft/r_sum[16]} {fft/r_sum[17]} {fft/r_sum[18]} {fft/r_sum[19]} {fft/r_sum[20]} {fft/r_sum[21]} {fft/r_sum[22]} {fft/r_sum[23]} {fft/r_sum[24]} {fft/r_sum[25]} {fft/r_sum[26]} {fft/r_sum[27]} {fft/r_sum[28]} {fft/r_sum[29]} {fft/r_sum[30]} {fft/r_sum[31]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe4]
-set_property port_width 5 [get_debug_ports u_ila_0/probe4]
-connect_debug_port u_ila_0/probe4 [get_nets [list {r[0]} {r[1]} {r[2]} {r[3]} {r[4]}]]
+set_property port_width 33 [get_debug_ports u_ila_0/probe4]
+connect_debug_port u_ila_0/probe4 [get_nets [list {fft/g_sum[0]} {fft/g_sum[1]} {fft/g_sum[2]} {fft/g_sum[3]} {fft/g_sum[4]} {fft/g_sum[5]} {fft/g_sum[6]} {fft/g_sum[7]} {fft/g_sum[8]} {fft/g_sum[9]} {fft/g_sum[10]} {fft/g_sum[11]} {fft/g_sum[12]} {fft/g_sum[13]} {fft/g_sum[14]} {fft/g_sum[15]} {fft/g_sum[16]} {fft/g_sum[17]} {fft/g_sum[18]} {fft/g_sum[19]} {fft/g_sum[20]} {fft/g_sum[21]} {fft/g_sum[22]} {fft/g_sum[23]} {fft/g_sum[24]} {fft/g_sum[25]} {fft/g_sum[26]} {fft/g_sum[27]} {fft/g_sum[28]} {fft/g_sum[29]} {fft/g_sum[30]} {fft/g_sum[31]} {fft/g_sum[32]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe5]
-set_property port_width 6 [get_debug_ports u_ila_0/probe5]
-connect_debug_port u_ila_0/probe5 [get_nets [list {g[0]} {g[1]} {g[2]} {g[3]} {g[4]} {g[5]}]]
+set_property port_width 32 [get_debug_ports u_ila_0/probe5]
+connect_debug_port u_ila_0/probe5 [get_nets [list {fft/b_sum[0]} {fft/b_sum[1]} {fft/b_sum[2]} {fft/b_sum[3]} {fft/b_sum[4]} {fft/b_sum[5]} {fft/b_sum[6]} {fft/b_sum[7]} {fft/b_sum[8]} {fft/b_sum[9]} {fft/b_sum[10]} {fft/b_sum[11]} {fft/b_sum[12]} {fft/b_sum[13]} {fft/b_sum[14]} {fft/b_sum[15]} {fft/b_sum[16]} {fft/b_sum[17]} {fft/b_sum[18]} {fft/b_sum[19]} {fft/b_sum[20]} {fft/b_sum[21]} {fft/b_sum[22]} {fft/b_sum[23]} {fft/b_sum[24]} {fft/b_sum[25]} {fft/b_sum[26]} {fft/b_sum[27]} {fft/b_sum[28]} {fft/b_sum[29]} {fft/b_sum[30]} {fft/b_sum[31]}]]
 set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
 set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
 set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
