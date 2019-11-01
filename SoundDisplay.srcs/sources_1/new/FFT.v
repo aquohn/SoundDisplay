@@ -61,9 +61,9 @@ module FFT(
     wire [12:0] ampl_out; // amplitude value read out to fft
     
     // running totals of colours
-    wire [33:0] r_sum;
-    wire [33:0] g_sum;
-    wire [33:0] b_sum;
+    (* mark_debug = "true" *) wire [33:0] r_sum;
+    (* mark_debug = "true" *) wire [33:0] g_sum;
+    (* mark_debug = "true" *) wire [33:0] b_sum;
     
     // fft signals
     reg [9:0] freq_addr = 10'b0; // the address of the frequency data being read out
@@ -150,9 +150,9 @@ module FFT(
      always @(posedge clk100m) begin
         // update the RGB values being presented
         if (fft_done_pipe) begin
-            r <= r_sum[33:29];
-            g <= g_sum[33:28];
-            b <= b_sum[33:29];
+            r <= r_sum[19:15];
+            g <= g_sum[19:14];
+            b <= b_sum[19:15];
         end
      end
     
