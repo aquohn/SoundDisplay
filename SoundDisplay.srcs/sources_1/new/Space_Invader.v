@@ -150,23 +150,14 @@ module Space_Invader(
     // counting the number of bits receiving from the Mouse Data 
      // 33 bits to be received from the Mouse 
     always @(posedge mouse_clk) begin
-        if(mouse_bits <= 31) 
-            mouse_bits <= mouse_bits + 1;
-        else 
-            mouse_bits <= 0;
-    end
+        if(mouse_bits <= 31) mouse_bits <= mouse_bits + 1;
+        else mouse_bits <= 0;
     
-    // Do something when pressing Left/Right Mouse 
-    always @(negedge mouse_clk) begin
-        if(mouse_bits == 1) begin
-            if(mouse_data == 1) begin // if the mouse is left clicked
-               // do something here
-            end
-        end else if(mouse_bits == 2) begin
-           if(mouse_data==1) begin// if the mouse is right clicked
-           // do something here    
-           end
-       end
+        if(mouse_bits == 1 && mouse_data == 1 && player_shot == 1'b0) begin // shoot if the mouse is left clicked
+            player_shot <= 1'b1;
+            player_shot_x <= top_layer_left + 1;
+            player_shot_y <= top_layer_up;
+        end
     end
     
     // update position of player
