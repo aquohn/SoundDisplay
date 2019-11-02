@@ -31,23 +31,25 @@ module Freq_To_Colour(
     output reg [4:0] b = 5'b0
     );
     
-    parameter RED_LIMIT = 128;
-    parameter GREEN_LIMIT = 512;
-    parameter BLUE_LIMIT = 1024;
+    parameter RED_LIMIT = 64;
+    parameter GREEN_LIMIT = 128;
+    parameter BLUE_LIMIT = 512;
     
-    reg [34:0] r_sum = 35'b0;
-    reg [34:0] g_sum = 35'b0;
-    reg [34:0] b_sum = 35'b0;
+    reg [33:0] r_sum = 34'b0;
+    reg [33:0] g_sum = 34'b0;
+    reg [33:0] b_sum = 34'b0;
+    reg start_pipe;
     
     // add freq values to colour fields
     always @(posedge clk) begin
-        if (start) begin
-            r <= r_sum[19:15];
-            g <= g_sum[19:14];
+        start_pipe <= start;
+        if (start_pipe) begin
+            r <= r_sum[18:14];
+            g <= g_sum[18:13];
             b <= b_sum[19:15];
-            r_sum <= 35'b0;
-            g_sum <= 35'b0;
-            b_sum <= 35'b0;
+            r_sum <= 34'b0;
+            g_sum <= 34'b0;
+            b_sum <= 34'b0;
         end else if (we) begin
             if (addr < RED_LIMIT) begin
                 r_sum <= r_sum + freq_mag;

@@ -23,16 +23,15 @@
 module Freq_Indic(
     input [15:0] sw,
     input oled_clk,
+    input frame_begin,
     input [464:0] freq_cnts,
     input [6:0] x,
     input [5:0] y,
-    output reg [15:0] led,
-    output reg [15:0] oled_data,
-    output reg [6:0] seg,
-    output reg [3:0] an
+    output reg [15:0] oled_data
     );
     
     wire [30:0] freq_bins [0:14];
+    reg [5:0] freq_reg [0:14];
     reg [6:0] seg_tens = 7'b0;   
     reg [6:0] seg_ones = 7'b0;
     reg [12:0] freq_count = 0;
@@ -88,6 +87,14 @@ module Freq_Indic(
             // draw screen
             oled_data <= colour_bg;
             
+            // store frequency values for this frame
+            if (frame_begin) begin : storefreq
+                integer k;
+                for (k = 0; k < 15; k = k + 1) begin
+                    freq_reg[k] <= freq_reg[k][17:12];
+                end
+            end
+            
             // draw border
             if (~sw[4]) begin
                 case (sw[2]) 
@@ -108,14 +115,14 @@ module Freq_Indic(
                 integer i;
                 for (i = 0; i < 15 ; i = i + 1) begin
                     if (x >= (3 + 6 * i) && x <= (7 + 6 * i) 
-                    && y >= (57 - freq_bins[i][17:12])) begin
-                        if (freq_bins[i][17:12] < 12) begin
+                    && y >= (57 - freq_reg[i])) begin
+                        if (freq_reg[i] < 12) begin
                             oled_data <= colour_low;
-                        end else if (freq_bins[i][17:12] < 24) begin
+                        end else if (freq_reg[i] < 24) begin
                             oled_data <= colour_mid_mid;
-                        end else if (freq_bins[i][17:12] < 36) begin
+                        end else if (freq_reg[i] < 36) begin
                             oled_data <= colour_mid;
-                        end else if (freq_bins[i][17:12] < 48) begin
+                        end else if (freq_reg[i] < 48) begin
                             oled_data <= colour_mid_high;
                         end else begin
                             oled_data <= colour_high;
