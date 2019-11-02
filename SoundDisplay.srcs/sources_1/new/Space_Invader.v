@@ -56,6 +56,9 @@ module Space_Invader(
     input [15:0] intensity_reg,
     input [6:0] x,
     input [5:0] y,
+    input btnC_signal,
+    input btnR_signal,
+    input btnL_signal,
     input mouse_data,
     input mouse_clk,
     input [464:0] freq_cnts,
@@ -101,7 +104,7 @@ Clk_Gen clk_game_core (.clk100m(clk100m), .clk_out(game_clk), .toggle(CNT_64_TOG
 
 reg [4:0] score;
 
-parameter ALIEN_Y = 7;
+parameter ALIEN_Y = 5;
 reg [15:0] alien_colours [0:4]; // note that colours persist even with change of colour theme
 wire [6:0] alien_x [0:4]; //constant
 reg alien_shot [0:4];
@@ -114,7 +117,6 @@ wire alien_clk_signal, game_clk_signal;
 reg [1:0] player_cooldown = 2'b00;
 reg player_dead = 1'b0;
 reg player_shot = 1'b0;
-reg player_shooting = 1'b0;
 reg [6:0] player_shot_y;
 reg [5:0] player_shot_x;
 
@@ -125,13 +127,16 @@ for (i = 0; i < 15; i = i + 1) begin
     assign freq_params[i] = freq_cnts[30 * (i + 1) - 13 -: 6];
 end
 
+reg btnC_pipe, btnR_pipe, btnL_pipe;
+
 for (i = 0; i < 5; i = i + 1) begin
-    assign alien_x[i] = 7 + 10 * i;
+    assign alien_x[i] = 11 + 18 * i;
     initial begin
         alien_shot[i] = 1'b0;
         alien_cooldown[i] = 1'b0;
         alien_alive[i] = 1'b1;
-        alien_colours[i] = colour_border;
+        alien_colours[i] = `OLED_RED;
+        alien_shot_y[i] = ALIEN_Y;
     end    
 end
 
@@ -143,7 +148,8 @@ initial begin
 end
 assign seg = (player_dead) ? seg_arr[seg_cnt] : 7'b1111111;
 
-always @(*) begin
+always @(*) begin : connections
+    integer i;
     case ({sw[1], sw[0]})
         2'b01: begin //ocean
             colour_border = {5'd4, 6'd15, 5'd11};
@@ -164,13 +170,13 @@ always @(*) begin
             colour_low = {5'd8, 6'd30, 5'd9};                                 
         end
         2'b11: begin //enhancement colour scheme: sunset
-        colour_border = {5'd31, 6'd54, 5'd22};
-        colour_bg = {5'd6, 6'd14, 5'd10};
-        colour_high = {5'd31, 6'd41, 5'd22};
-        colour_mid_high = {5'd25, 6'd46, 5'd30};
-        colour_mid = {5'd18, 6'd32, 5'd22};
-        colour_mid_mid = {5'd21, 6'd33, 5'd20};
-        colour_low = {5'd10, 6'd21, 5'd15}; 
+            colour_border = {5'd31, 6'd54, 5'd22};
+            colour_bg = {5'd6, 6'd14, 5'd10};
+            colour_high = {5'd31, 6'd41, 5'd22};
+            colour_mid_high = {5'd25, 6'd46, 5'd30};
+            colour_mid = {5'd18, 6'd32, 5'd22};
+            colour_mid_mid = {5'd21, 6'd33, 5'd20};
+            colour_low = {5'd10, 6'd21, 5'd15}; 
         end
         default: begin
             colour_border = `OLED_WHITE;
@@ -184,6 +190,9 @@ always @(*) begin
     endcase
     
     led[15] = sw[15];
+    for (i = 0; i < 15; i = i + 1) begin
+        led[i] = (freq_params[14 - i] > ALIEN_THRESHOLD) ? 1'b1 : 1'b0; 
+    end
 end
 
 always @(posedge mic_clk) begin 
@@ -213,11 +222,18 @@ assign game_clk_signal = game_clk_pipe & ~game_clk_reg;
 always @(posedge oled_clk) begin : update_game
     integer a;
 
-    // "debounce" clock signals
+    // "debounce" signals
     alien_clk_pipe <= alien_clk;
     alien_clk_reg <= alien_clk_pipe;
     game_clk_pipe <= game_clk;
     game_clk_reg <= game_clk_pipe;
+    btnC_pipe <= btnC_signal;
+    btnR_pipe <= btnR_signal;
+    btnL_pipe <= btnL_signal;
+    
+    if (btnC_signal & ~btnC_pipe & ~player_shot) begin
+        player_shot <= 1'b1;
+    end
     
     // draw screen
     oled_data <= colour_bg;
@@ -243,7 +259,17 @@ always @(posedge oled_clk) begin : update_game
         for (a = 0; a < 5; a = a + 1) begin
             if (alien_alive[a]) begin 
                 case (y - ALIEN_Y)
-                    5'd0: begin
+                    5'd0, 5'd1: begin
+                        if (x <= alien_x[a] + 3 && x >= alien_x[a] - 3) begin
+                            if (player_shot && x == player_shot_x && y == player_shot_y) begin
+                                alien_alive[a] <= 1'b0;
+                                alien_cooldown[a] <= 1'b1;
+                                player_shot <= 1'b0;
+                            end
+                            oled_data <= alien_colours[a];
+                        end
+                    end
+                    5'd2, 5'd3: begin
                         if (x <= alien_x[a] + 2 && x >= alien_x[a] - 2) begin
                             if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
@@ -253,18 +279,8 @@ always @(posedge oled_clk) begin : update_game
                             oled_data <= alien_colours[a];
                         end
                     end
-                    5'd1: begin
+                    5'd4, 5'd5: begin
                         if (x <= alien_x[a] + 1 && x >= alien_x[a] - 1) begin
-                            if (player_shot && x == player_shot_x && y == player_shot_y) begin
-                                alien_alive[a] <= 1'b0;
-                                alien_cooldown[a] <= 1'b1;
-                                player_shot <= 1'b0;
-                            end
-                            oled_data <= alien_colours[a];
-                        end
-                    end
-                    5'd2: begin
-                        if (x == alien_x[a]) begin
                             if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
                                 alien_cooldown[a] <= 1'b1;
@@ -279,9 +295,6 @@ always @(posedge oled_clk) begin : update_game
     end
     
     // draw player
-    if (player_shooting) begin
-        player_shot <= 1'b1;
-    end
     if (y >= 3 && y <= 60 && x >= 3 && x <= 92 && ~player_dead) begin
         if (x >= bottom_layer_left && x <= bottom_layer_right && y >= bottom_layer_up && y <= bottom_layer_down)begin
             oled_data <= colour_mid;
@@ -341,7 +354,8 @@ always @(posedge oled_clk) begin : update_game
             end
         end
     end
-
+    
+    // handle alien bullets
     for (a = 0; a < 5; a = a + 1) begin
         if (alien_shot[a]) begin // check if player died
             if ((alien_shot_y[a] > top_layer_up && alien_shot_y[a] < middle_layer_up 
@@ -362,16 +376,15 @@ always @(posedge oled_clk) begin : update_game
         end
     end
 
-    // TODO mouse control
     // update position of player
-    if (intensity_reg[4]) begin
+    if (btnR_signal & ~btnR_pipe) begin
         bottom_layer_left <= (bottom_layer_left == 7'b1010010) ? 7'b1010010 : bottom_layer_left + 1; // move right
         bottom_layer_right <= (bottom_layer_right == 7'b1011100) ? 7'b1011100 : bottom_layer_right + 1;
         middle_layer_left <= (middle_layer_left == 7'b1010100) ? 7'b1010100 : middle_layer_left + 1;
         middle_layer_right <= (middle_layer_right == 7'b1011010) ? 7'b1011010 : middle_layer_right + 1;
         top_layer_left <= (top_layer_left == 7'b1010110) ? 7'b1010110 : top_layer_left + 1;
         top_layer_right <= (top_layer_right == 7'b1011000) ? 7'b1011000 : top_layer_right + 1;
-    end else if (intensity_reg[14]) begin
+    end else if (btnL_signal & ~btnL_pipe) begin
         bottom_layer_left <= (bottom_layer_left == 7'b0000011) ? 7'b0000011 : bottom_layer_left - 1; // move left
         bottom_layer_right <= (bottom_layer_right == 7'b0001101) ? 7'b0001101 : bottom_layer_right - 1;
         middle_layer_left <= (middle_layer_left == 7'b0000101) ? 7'b0000101 : middle_layer_left - 1;

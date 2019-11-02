@@ -147,12 +147,12 @@ module Top_Student (
         .freq_re(freq_re), .freq_im(freq_im), .freq_re_abs(freq_re_abs), .freq_im_abs(freq_im_abs));
         
     // Frequency counter module
-    /*(* use_dsp = "yes" *) Freq_Div freq_div (.clk(clk_in), .we(fft_out_rdy),
-        .start(fft_done), .addr(freq_addr), .freq_mag(freq_mag), .freq_cnts(freq_cnts));*/
+    (* use_dsp = "yes" *) Freq_Div freq_div (.clk(clk_in), .we(fft_out_rdy),
+        .start(fft_done), .addr(freq_addr), .freq_mag(freq_mag), .freq_cnts(freq_cnts));
         
     // Frequency to colour module
-    (* use_dsp = "yes" *) Freq_To_Colour freq_to_colour (.clk(clk_in), .we(fft_out_rdy),
-        .start(fft_done), .addr(freq_addr), .freq_mag(freq_mag), .r(r), .g(g), .b(b)); 
+    /*(* use_dsp = "yes" *) Freq_To_Colour freq_to_colour (.clk(clk_in), .we(fft_out_rdy),
+        .start(fft_done), .addr(freq_addr), .freq_mag(freq_mag), .r(r), .g(g), .b(b));*/ 
         
     // Basic functionality module
     Vol_Indic vol_indic (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
@@ -173,7 +173,8 @@ module Top_Student (
     // Space Invader Game 
     Space_Invader space_invader (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_space), .oled_data(oled_space), .seg(seg_space),
                 .an(an_space), .x(x), .y(y), .intensity_reg(intensity_reg), .mouse_data(mouse_data), .mouse_clk(mouse_clk),
-                .freq_cnts(freq_cnts), .clk100m(clk_in));
+                .freq_cnts(freq_cnts), .clk100m(clk_in), .btnC_signal(btnC_signal), .btnR_signal(btnR_signal),
+                .btnL_signal(btnL_signal));
     
     /*
     // Frequency indicator
