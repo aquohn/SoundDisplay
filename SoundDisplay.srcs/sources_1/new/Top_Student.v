@@ -71,6 +71,9 @@ module Top_Student (
     wire fft_done; // strobed on fft completion
     wire fft_out_rdy; // asserted when there is valid data from the fft
     
+    // output from FFT results
+    wire [464:0] freq_cnts;
+    
     //output from basic functionality
     wire [15:0] led_basic;
     wire [6:0] seg_basic;
@@ -115,7 +118,12 @@ module Top_Student (
     assign btnD_signal = ~btnD_reg & btnD_pipe;
     
     // Clock setup
-    Clk_Gen clk_gen (.clk100m(clk_in), .clk6p25m(clk6p25m), .clk20(clk20), .clk20k(clk20k));
+    parameter CNT_6P25_TOGGLE = 7;
+    parameter CNT_20K_TOGGLE = 2499;
+    parameter CNT_20_TOGGLE = 2499999;
+    Clk_Gen clk_6p25_gen (.clk100m(clk_in), .clk_out(clk6p25m), .toggle(CNT_6P25_TOGGLE));
+    Clk_Gen clk_20k_gen (.clk100m(clk_in), .clk_out(clk20k), .toggle(CNT_20K_TOGGLE));
+    Clk_Gen clk_20_gen (.clk100m(clk_in), .clk_out(clk20), .toggle(CNT_20_TOGGLE));
     
     // Mic setup
     Audio_Capture audio_capture (.CLK(clk_in), .cs(clk20k), .MISO(J_MIC3_Pin3),
@@ -130,8 +138,12 @@ module Top_Student (
     // FFT module
     FFT fft (.clk100m(clk_in), .clk20k(clk20k), .mic_in(mic_in), .freq_mag(freq_mag),
         .freq_addr(freq_addr), .fft_done(fft_done), .fft_out_rdy(fft_out_rdy),
-        .freq_re(freq_re), .freq_im(freq_im), .freq_re_abs(freq_re_abs), .freq_im_abs(freq_im_abs)); 
-    
+        .freq_re(freq_re), .freq_im(freq_im), .freq_re_abs(freq_re_abs), .freq_im_abs(freq_im_abs));
+        
+    // Frequency counter module
+    (* use_dsp = "yes" *) Freq_Div freq_div (.clk(clk_in), .we(fft_out_rdy),
+        .start(fft_done), .addr(freq_addr), .freq_mag(freq_mag), .freq_cnts(freq_cnts)); 
+        
     // Basic functionality module
     Vol_Indic vol_indic (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
             .an(an_basic), .x(x), .y(y), .intensity_reg(intensity_reg));
@@ -157,6 +169,7 @@ module Top_Student (
     // Space Invader Game 
     Space_Invader space_invader (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_space), .oled_data(oled_space), .seg(seg_space),
                 .an(an_space), .x(x), .y(y), .intensity_reg(intensity_reg), .mouse_data(mouse_data), .mouse_clk(mouse_clk));      
+   
     
     
     // Multiplexer to select output from chosen module

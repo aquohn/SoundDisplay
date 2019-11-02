@@ -24,49 +24,21 @@
 
 module Clk_Gen(
     input clk100m,
-    output reg clk6p25m,
-    output reg clk20k,
-    output reg clk20
+    input [31:0] toggle,
+    output reg clk_out = 1'b0
     );
     
-    reg [3:0] cnt6p25m;
-    reg [11:0] cnt20k;
-    reg [21:0] cnt20;
-    
-    initial begin
-        cnt6p25m = 4'd0;
-        clk6p25m = 1'b0;
-        cnt20k = 12'd0; 
-        clk20k = 1'b0; 
-        cnt20 = 22'd0;
-        clk20 = 1'b0;
-    end
-    
-    parameter CNT_6P25_TOGGLE = 7;
-    parameter CNT_20K_TOGGLE = 2499;
-    parameter CNT_20_TOGGLE = 2499999;
+    reg [31:0] cnt = 32'b0;
     
     always @(posedge clk100m) begin
 
         // use blocking assignments for clock divider
 
-        cnt6p25m <= cnt6p25m + 1;
-        cnt20k <= cnt20k + 1;
-        cnt20 <= cnt20 + 1;
+        cnt <= cnt + 1;
 
-        if (cnt6p25m == CNT_6P25_TOGGLE) begin
-            cnt6p25m <= 4'd0;
-            clk6p25m = ~clk6p25m;
-        end
-
-        if (cnt20k == CNT_20K_TOGGLE) begin
-            cnt20k <= 12'd0;
-            clk20k = ~clk20k;
-        end
-
-        if (cnt20 == CNT_20_TOGGLE) begin
-            cnt20 <= 22'd0;
-            clk20 = ~clk20;
+        if (cnt >= toggle) begin
+            cnt <= 32'd0;
+            clk_out = ~clk_out;
         end
     end
 endmodule
