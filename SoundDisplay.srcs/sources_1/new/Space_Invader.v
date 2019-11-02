@@ -57,22 +57,18 @@ module Space_Invader(
     input [5:0] y,
     input mouse_data,
     input mouse_clk,
+    input [15:0] intensity_reg,
     output reg [15:0] led,
-    output reg [15:0] intensity_reg,
     output reg [15:0] oled_data,
     output reg [6:0] seg,
     output reg [3:0] an
     );
     
     reg [12:0] counter = 0;
-    reg [11:0] peak_intensity = 12'b0;
 
     reg [6:0] seg_tens = 7'b0;   
     reg [6:0] seg_ones = 7'b0;
-    
-    reg [12:0] freq_count = 0;
-    reg [17:0] freq_count_oled = 0;
-    
+        
     reg [6:0] bottom_layer_left = 7'd43;
     reg [6:0] bottom_layer_right = 7'd53;
     reg [6:0] bottom_layer_up = 7'd55;
@@ -96,10 +92,19 @@ module Space_Invader(
     Clk_Gen clk_alien_core (.clk100m(clk100m), .clk_out(alien_clk), .toggle(CNT_0P2_TOGGLE));
     Clk_Gen clk_game_core (.clk100m(clk100m), .clk_out(game_clk), .toggle(CNT_64_TOGGLE));
     
+    reg [4:0] score;
+    
     parameter ALIEN_Y = 5;
     reg [15:0] alien_colour [0:4];
-    reg [6:0] alien_x [0:4];
-    reg cooldown_cnt [0:4];
+    reg [6:0] alien_x [0:4]; //constant
+    reg alien_shot [0:4];
+    reg [5:0] alien_shot_y [0:4]; //constant
+    reg alien_alive [0:4];
+    reg alien_cooldown [0:4];
+    
+    reg player_shot;
+    reg [4:0] player_shot_y;
+    reg [4:0] player_shot_x;
 
     always @(*) begin
         case ({sw[1], sw[0]})
@@ -164,151 +169,31 @@ module Space_Invader(
        end
     end
     
-    always @ (posedge mic_clk) begin
-        // Find the peak intensity of the audio signal by using find max
-        peak_intensity <= (freq_count == 0) ? 0 : (mic_in > peak_intensity) ? mic_in[11:0] : peak_intensity[11:0];
-    
-        // Enhancement feature to set sampling frequency
-        if (sw[12] == 1) begin
-            freq_count <= (freq_count == 1999) ? 0 : freq_count + 1; // 5Hz frequency
-        end 
-        else if (sw[11] == 1) begin
-            freq_count <= (freq_count == 999) ? 0 : freq_count + 1; // 10Hz frequency
-        end else begin
-            freq_count <= (freq_count == 4999) ? 0 : freq_count + 1; // 2Hz frequency
-        end
-       
-        // Enhancement feature to set anode display pattern
-        if (sw[9] == 1) begin
-            an <= (an == 4'b0111) ? 4'b1011 : 4'b0111;
-            seg <= (an == 4'b0111) ? seg_ones : seg_tens; // Using the first 2 anodes from the left
-        end
-        else if (sw[10] == 1) begin
-            an <= (an == 4'b1011) ? 4'b1101 : 4'b1011;
-            seg <= (an == 4'b1011) ? seg_ones : seg_tens; // Using the middle 2 anodes
-        end 
-        else begin
-            an <= (an == 4'b1101) ? 4'b1110 : 4'b1101;
-            seg <= (an == 4'b1101) ? seg_ones : seg_tens; // Using the right 2 anodes
-        end
-        
-        if (freq_count == 0 && sw[13] == 0) begin
-            if (sw[14] == 1) begin // Set the reading to 0
-                intensity_reg <= 15'b0;
-                seg_tens <= 7'b1000000;
-                seg_ones <= 7'b1000000;
-            end
-            
-            else if (peak_intensity >= 3954) begin
-                intensity_reg <= 15'b111111111111111;
-                seg_tens <= 7'b1111001;
-                seg_ones <= 7'b0010010;
-            end
-            
-            else if (peak_intensity >= 3818) begin
-                intensity_reg <= 15'b011111111111111;
-                seg_tens <= 7'b1111001;
-                seg_ones <= 7'b0011001;
-            end
-            
-            else if (peak_intensity >= 3682) begin
-                intensity_reg <= 15'b001111111111111;
-                seg_tens <= 7'b1111001;
-                seg_ones <= 7'b0110000;
-            end
-            
-            else if (peak_intensity >= 3545) begin
-                intensity_reg <= 15'b000111111111111;
-                seg_tens <= 7'b1111001;
-                seg_ones <= 7'b0100100;
-            end
-            
-            else if (peak_intensity >= 3409) begin
-                intensity_reg <= 15'b000011111111111;
-                seg_tens <= 7'b1111001;
-                seg_ones <= 7'b1111001;
-            end
-            
-            else if (peak_intensity >= 3273) begin
-                intensity_reg <= 15'b000001111111111;
-                seg_tens <= 7'b1111001;
-                seg_ones <= 7'b1000000;
-            end
-            
-            else if (peak_intensity >= 3137) begin
-                intensity_reg <= 15'b000000111111111;
-                seg_tens <= 7'b1000000;
-                seg_ones <= 7'b0011000;
-            end
-            
-            else if (peak_intensity >= 3000) begin
-                intensity_reg <= 15'b000000011111111;
-                seg_tens <= 7'b1000000;
-                seg_ones <= 7'b0000000;
-            end
-            
-            else if (peak_intensity >= 2864) begin
-                intensity_reg <= 15'b000000001111111;
-                seg_tens <= 7'b1000000;
-                seg_ones <= 7'b1111000;
-            end
-            
-            else if (peak_intensity >= 2728) begin
-                intensity_reg <= 15'b000000000111111;
-                seg_tens <= 7'b1000000;
-                seg_ones <= 7'b0000010;
-            end
-            
-            else if (peak_intensity >= 2592) begin
-                intensity_reg <= 15'b000000000011111;
-                seg_tens <= 7'b1000000;
-                seg_ones <= 7'b0010010;
-            end
-            
-            else if (peak_intensity >= 2456) begin
-                intensity_reg <= 15'b000000000001111;
-                seg_tens <= 7'b1000000;
-                seg_ones <= 7'b0011001;
-            end
-            
-            else if (peak_intensity >= 2320) begin
-                intensity_reg <= 15'b000000000000111;
-                seg_tens <= 7'b1000000;
-                seg_ones <= 7'b0110000;
-            end
-            
-            else if (peak_intensity >= 2200) begin
-                intensity_reg <= 15'b000000000000011;
-                seg_tens <= 7'b1000000;
-                seg_ones <= 7'b0100100;
-            end
-
-            else if (peak_intensity >= 2070) begin
-                intensity_reg <= 15'b000000000000001;
-                seg_tens <= 7'b1000000;
-                seg_ones <= 7'b1111001;
-            end
-            
-            else begin
-                intensity_reg <= 15'b000000000000000;
-                seg_tens <= 7'b1000000;
-                seg_ones <= 7'b1000000;
+    // update position of player
+    always @(posedge mic_clk) begin
+        if (~sw[5] && sw[7]) begin : genspaceship
+                integer i;
+                for (i = 0; i < 15; i = i + 1) begin
+                    if (i == 4 && intensity_reg[4]) begin
+                        bottom_layer_left <= (bottom_layer_left == 7'b1010010) ? 7'b1010010 : bottom_layer_left + 1; // move right
+                        bottom_layer_right <= (bottom_layer_right == 7'b1011100) ? 7'b1011100 : bottom_layer_right + 1;
+                        middle_layer_left <= (middle_layer_left == 7'b1010100) ? 7'b1010100 : middle_layer_left + 1;
+                        middle_layer_right <= (middle_layer_right == 7'b1011010) ? 7'b1011010 : middle_layer_right + 1;
+                        top_layer_left <= (top_layer_left == 7'b1010110) ? 7'b1010110 : top_layer_left + 1;
+                        top_layer_right <= (top_layer_right == 7'b1011000) ? 7'b1011000 : top_layer_right + 1;
+                    end else if (i == 14 && intensity_reg[14]) begin
+                        bottom_layer_left <= (bottom_layer_left == 7'b0000011) ? 7'b0000011 : bottom_layer_left - 1; // move left
+                        bottom_layer_right <= (bottom_layer_right == 7'b0001101) ? 7'b0001101 : bottom_layer_right - 1;
+                        middle_layer_left <= (middle_layer_left == 7'b0000101) ? 7'b0000101 : middle_layer_left - 1;
+                        middle_layer_right <= (middle_layer_right == 7'b0001011) ? 7'b0001011 : middle_layer_right - 1;
+                        top_layer_left <= (top_layer_left == 7'b0000111) ? 7'b0000111 : top_layer_left - 1;
+                        top_layer_right <= (top_layer_right == 7'b0001001) ? 7'b0001001 : top_layer_right - 1;
+                    end
+                end
             end
         end
-        
-        if (sw[15] == 0) begin
-            led <= intensity_reg;
-        end else begin // MUX to read from mic_in instead of the peak intensity
-            if (freq_count == 0) begin
-                led <= mic_in;
-                seg_tens <= 7'b1111111;
-                seg_ones <= 7'b1111111;
-            end
-        end
-    end
     
     always @(posedge oled_clk) begin
-        freq_count_oled <= (freq_count_oled == 156249) ? 0 : freq_count_oled + 1; // 20Hz frequency
     
         // draw screen
         oled_data <= colour_bg;
@@ -329,26 +214,7 @@ module Space_Invader(
             endcase
         end
         
-        if (freq_count_oled == 0 && ~sw[5] && sw[7]) begin : genspaceship
-            integer i;
-            for (i = 0; i < 15; i = i + 1) begin
-                if (i == 4 && intensity_reg[4]) begin
-                    bottom_layer_left <= (bottom_layer_left == 7'b1010010) ? 7'b1010010 : bottom_layer_left + 1; // move right
-                    bottom_layer_right <= (bottom_layer_right == 7'b1011100) ? 7'b1011100 : bottom_layer_right + 1;
-                    middle_layer_left <= (middle_layer_left == 7'b1010100) ? 7'b1010100 : middle_layer_left + 1;
-                    middle_layer_right <= (middle_layer_right == 7'b1011010) ? 7'b1011010 : middle_layer_right + 1;
-                    top_layer_left <= (top_layer_left == 7'b1010110) ? 7'b1010110 : top_layer_left + 1;
-                    top_layer_right <= (top_layer_right == 7'b1011000) ? 7'b1011000 : top_layer_right + 1;
-                end else if (i == 14 && intensity_reg[14]) begin
-                    bottom_layer_left <= (bottom_layer_left == 7'b0000011) ? 7'b0000011 : bottom_layer_left - 1; // move left
-                    bottom_layer_right <= (bottom_layer_right == 7'b0001101) ? 7'b0001101 : bottom_layer_right - 1;
-                    middle_layer_left <= (middle_layer_left == 7'b0000101) ? 7'b0000101 : middle_layer_left - 1;
-                    middle_layer_right <= (middle_layer_right == 7'b0001011) ? 7'b0001011 : middle_layer_right - 1;
-                    top_layer_left <= (top_layer_left == 7'b0000111) ? 7'b0000111 : top_layer_left - 1;
-                    top_layer_right <= (top_layer_right == 7'b0001001) ? 7'b0001001 : top_layer_right - 1;
-                end
-            end
-        end else if (sw[7] && y >= 3 && y <= 60 && x >= 3 && x <= 92) begin
+        if (sw[7] && y >= 3 && y <= 60 && x >= 3 && x <= 92) begin
             if (x >= bottom_layer_left && x <= bottom_layer_right && y >= bottom_layer_up && y <= bottom_layer_down)begin
                 oled_data <= colour_mid;
             end
