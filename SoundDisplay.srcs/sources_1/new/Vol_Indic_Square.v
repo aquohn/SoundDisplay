@@ -252,6 +252,7 @@ module Vol_Indic_Square(
     end
     
     always @(posedge oled_clk) begin    
+        freq_count_oled <= (freq_count_oled == 156249) ? 0 : freq_count_oled + 1; // 20Hz frequency
         // draw screen
         oled_data <= colour_bg;
         
