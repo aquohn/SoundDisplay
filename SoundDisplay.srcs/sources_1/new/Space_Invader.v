@@ -262,31 +262,56 @@ always @(posedge oled_clk) begin : update_game
             if (alien_alive[a]) begin 
                 case (y - ALIEN_Y)
                     5'd0, 5'd1: begin
-                        if (x <= alien_x[a] + 3 && x >= alien_x[a] - 3) begin
+                        if (x <= alien_x[a] + 5 && x >= alien_x[a] - 5) begin
                             if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
                                 alien_cooldown[a] <= 1'b1;
                                 player_shot <= 1'b0;
+                                score <= score + 1;
                             end
                             oled_data <= alien_colours[a];
                         end
                     end
                     5'd2, 5'd3: begin
-                        if (x <= alien_x[a] + 2 && x >= alien_x[a] - 2) begin
+                        if (x <= alien_x[a] + 4 && x >= alien_x[a] - 4) begin
                             if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
                                 alien_cooldown[a] <= 1'b1;
                                 player_shot <= 1'b0;
+                                score <= score + 1;
                             end
                             oled_data <= alien_colours[a];
                         end
                     end
                     5'd4, 5'd5: begin
+                        if (x <= alien_x[a] + 3 && x >= alien_x[a] - 3) begin
+                            if (player_shot && x == player_shot_x && y == player_shot_y) begin
+                                alien_alive[a] <= 1'b0;
+                                alien_cooldown[a] <= 1'b1;
+                                player_shot <= 1'b0;
+                                score <= score + 1;
+                            end
+                            oled_data <= alien_colours[a];
+                        end
+                    end
+                    5'd6, 5'd7: begin
+                        if (x <= alien_x[a] + 2 && x >= alien_x[a] - 2) begin
+                            if (player_shot && x == player_shot_x && y == player_shot_y) begin
+                                alien_alive[a] <= 1'b0;
+                                alien_cooldown[a] <= 1'b1;
+                                player_shot <= 1'b0;
+                                score <= score + 1;
+                            end
+                            oled_data <= alien_colours[a];
+                        end
+                    end
+                    5'd8, 5'd9: begin
                         if (x <= alien_x[a] + 1 && x >= alien_x[a] - 1) begin
                             if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
                                 alien_cooldown[a] <= 1'b1;
                                 player_shot <= 1'b0;
+                                score <= score + 1;
                             end
                             oled_data <= alien_colours[a];
                         end
@@ -317,18 +342,22 @@ always @(posedge oled_clk) begin : update_game
     
     if (game_clk_signal) begin //update bullets 
         for (a = 0; a < 5; a = a + 1) begin
-            if (alien_shot[a] && alien_shot_y[a] != `OLED_HEIGHT - 1) begin
-                alien_shot_y[a] <= alien_shot_y[a] + 1; 
-            end else begin
-                //alien_shot[a] <= 1'b0;
-                alien_shot_y[a] <= ALIEN_Y + 2;
+            if (alien_shot[a]) begin
+                if (alien_shot_y[a] < `OLED_HEIGHT - 4) begin
+                    alien_shot_y[a] <= alien_shot_y[a] + 1; 
+                end else begin
+                    alien_shot[a] <= 1'b0;
+                    alien_shot_y[a] <= ALIEN_Y + 2;
+                end
             end
         end
-        if (player_shot && player_shot_y != 6'd0) begin
-            player_shot_y <= player_shot_y - 1;
-        end else begin
-            //player_shot <= 1'b0;
-            player_shot_y <= top_layer_up;
+        if (player_shot) begin
+            if (player_shot_y > 6'd4) begin
+                player_shot_y <= player_shot_y - 1;
+            end else begin
+                player_shot <= 1'b0;
+                player_shot_y <= top_layer_up;
+            end
         end
     end
     
@@ -344,13 +373,13 @@ always @(posedge oled_clk) begin : update_game
         for (a = 0; a < 5; a = a + 1) begin
             if (alien_cooldown[a]) begin // reset cooldown
                 alien_cooldown[a] <= 1'b0;
-            end else begin
+            end else begin // handicap for a == 2 (high frequency)
                 if (alien_alive[a]) begin // see if we will shoot
-                    if (freq_params[(3 * a) + 2] > ALIEN_THRESHOLD && ~alien_shot[a]) begin
+                    if ((freq_params[(3 * a) + 2] > ALIEN_THRESHOLD || (freq_params[(3 * a) + 2] > 0 && a == 2)) && ~alien_shot[a]) begin
                         alien_shot[a] <= 1'b1;
                     end
                 end else begin // see if alien will respawn, and if so, see what colour he will be
-                    if (freq_params[(3 * a)] > ALIEN_THRESHOLD) begin
+                    if (freq_params[(3 * a)] > ALIEN_THRESHOLD || (freq_params[(3 * a)] > 0 && a == 2)) begin
                         alien_alive[a] <= 1'b1;
                         if (freq_params[(3 * a) + 1] > 48) begin
                             alien_colours[a] <= colour_high;
@@ -382,8 +411,6 @@ always @(posedge oled_clk) begin : update_game
                 player_dead <= 1'b1;
                 score <= 4'd0;
                 player_cooldown <= 2'b10;
-            end else if (alien_shot_y[a] == `OLED_HEIGHT - 1) begin // clean up bullet
-                alien_shot[a] <= 1'b0;
             end else if (x >= alien_x[a] - 1 && x <= alien_x[a] + 1 
             && y >= alien_shot_y[a] - 1 && y <= alien_shot_y[a] + 1) begin // draw bullet
                 oled_data <= alien_colours[a];
