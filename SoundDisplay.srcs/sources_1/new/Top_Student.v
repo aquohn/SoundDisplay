@@ -179,7 +179,7 @@ module Top_Student (
                 .oled_data(oled_freq), .frame_begin(frame_begin));
     
     // Frequency indicator
-    Eagle eagle (.sw(sw), .r(r), .g(g), .b(b), .oled_clk(clk6p25m), .clk100m(clk_in),
+    Eagle eagle (.sw(sw), .r(r), .g(g[5:1]), .b(b), .oled_clk(clk6p25m), .clk100m(clk_in),
                 .led(led_eagle), .oled_data(oled_eagle), .seg(seg_eagle), .an(an_eagle), 
                 .frame_begin(frame_begin), .clk20(clk20), .pixel_index(pixel_index),
                 .btnU_signal(btnU_signal), .btnR_signal(btnR_signal), 

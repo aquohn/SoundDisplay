@@ -39,19 +39,35 @@ module Eagle(
     output reg [3:0] an
     );
     
+    parameter AN_0 = 4'b0111;
+    parameter AN_1 = 4'b1011;
+    parameter AN_2 = 4'b1101;
+    parameter AN_3 = 4'b1110;
+    
+    parameter SEG_H = 7'b0001001;
+    parameter SEG_O = 7'b1000000;
+    parameter SEG_SPACE = 7'b1111111;
+    
     parameter UP = 0;
     parameter DOWN = 1;
     parameter LEFT = 2;
     parameter RIGHT = 3;
     
+    parameter REDMAX = 0;
+    parameter BLUEMAX = 1;
+    parameter GREENMAX = 2;
+    
     parameter TOGGLE_8 = 12_499_999;
     parameter TOGGLE_4 = 24_999_999;
-    parameter TOGGLE_2 = 49_999_999;
+    parameter TOGGLE_16 = 6_249_999;
+    
+    reg [1:0] seg_cnt = 2'b00;
 
     wire bird_clk;
     reg [1:0] dir = 2'b00;
     reg [1:0] frame_bird_cnt = 2'b00;
     reg [1:0] bird_cnt = 2'b00;
+    reg [1:0] max_col = REDMAX;
     reg [31:0] toggle;
     
     wire [15:0] up_out [0:2];
@@ -61,26 +77,45 @@ module Eagle(
     
     Clk_Gen bird_clk_gen(.clk100m(clk100m), .clk_out(bird_clk), .toggle(toggle));
     
+    // "incorrect" indexing is intentional
     up1 up1_bram (.clk(oled_clk), .addr(pixel_index), .pixel(up_out[0]));
-    up2 up2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(up_out[1]));
-    up3 up3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(up_out[2]));
+    up2 up2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(up_out[2]));
+    up3 up3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(up_out[1]));
     
     down1 down1_bram (.clk(oled_clk), .addr(pixel_index), .pixel(down_out[0]));
-    down2 down2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(down_out[1]));
-    down3 down3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(down_out[2]));
+    down2 down2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(down_out[2]));
+    down3 down3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(down_out[1]));
     
     left1 left1_bram (.clk(oled_clk), .addr(pixel_index), .pixel(left_out[0]));
-    left2 left2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(left_out[1]));
-    left3 left3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(left_out[2]));
+    left2 left2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(left_out[2]));
+    left3 left3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(left_out[1]));
         
     right1 right1_bram (.clk(oled_clk), .addr(pixel_index), .pixel(right_out[0]));
-    right2 right2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(right_out[1]));
-    right3 right3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(right_out[2]));
+    right2 right2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(right_out[2]));
+    right3 right3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(right_out[1]));
     
     always @(*) begin
-        led = sw;
+        // TODO: say HIGH - MID - LOW
         seg = 7'b1111111;
-        an = 4'b1111;
+        case (max_col)
+            REDMAX: begin
+                toggle = TOGGLE_4;
+                led[4:0] = r;
+                led[15:5] = 11'b0;
+            end
+            BLUEMAX: begin
+                toggle = TOGGLE_16;
+                led[14:10] = b;
+                led[9:0] = 10'b1111111111;
+                led[15] = 1'b0;
+            end
+            default: begin
+                toggle = TOGGLE_8;
+                led[15:10] = 6'b0;
+                led[4:0] = 5'b11111;
+                led[9:5] = g;
+            end
+        endcase
     end
     
     always @(posedge clk20) begin
@@ -93,11 +128,11 @@ module Eagle(
     end
     
     always @(posedge bird_clk) begin
-        if (r > g[5:1] && r > b) toggle <= TOGGLE_2;
-        else if (b > g[5:1] && b > r) toggle <= TOGGLE_8;
-        else toggle <= TOGGLE_4;
+        if (r > g && r > b) max_col <= REDMAX;
+        else if (b > g && b > r) max_col <= BLUEMAX;
+        else max_col <= GREENMAX;
         
-        bird_cnt <= bird_cnt + 1;
+        bird_cnt <= (bird_cnt == 2'b10) ? 2'b00 : bird_cnt + 1;
     end
     
     always @(posedge oled_clk) begin
@@ -107,21 +142,39 @@ module Eagle(
         
         case (dir)
             UP: begin
-                if (frame_bird_cnt == 3) oled_data <= up_out[1];
-                else oled_data <= up_out[frame_bird_cnt];
+                oled_data <= up_out[frame_bird_cnt];
             end
             DOWN: begin
-                if (frame_bird_cnt == 3) oled_data <= down_out[1];
-                else oled_data <= down_out[frame_bird_cnt];
+                oled_data <= down_out[frame_bird_cnt];
             end
             LEFT: begin
-                if (frame_bird_cnt == 3) oled_data <= left_out[1];
-                else oled_data <= left_out[frame_bird_cnt];        
+                oled_data <= left_out[frame_bird_cnt];        
             end
             default: begin
-                if (frame_bird_cnt == 3) oled_data <= right_out[1];
-                else oled_data <= right_out[frame_bird_cnt];         
+                oled_data <= right_out[frame_bird_cnt];         
             end
         endcase
+    end
+    
+    //cycling through characters
+    always @(posedge clk100m) begin
+        case (seg_cnt) //lol this is an FSM
+            2'b00: begin
+                an <= AN_1;
+                seg_cnt <= 2'b01;
+            end
+            2'b01: begin
+                an <= AN_2;
+                seg_cnt <= 2'b10;
+            end
+            2'b10: begin
+                an <= AN_3;
+                seg_cnt <= 2'b11;
+            end
+            2'b11: begin
+                an <= AN_0;
+                seg_cnt <= 2'b00;
+            end
+         endcase
     end
 endmodule
