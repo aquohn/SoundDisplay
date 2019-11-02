@@ -41,13 +41,14 @@ module Eagle(
     parameter LEFT = 2;
     parameter RIGHT = 3;
     
-    parameter RED_ISMAX = 0;
-    parameter GREEN_ISMAX = 1;
-    parameter BLUE_ISMAX = 2;
+    parameter TOGGLE_8 = 12_499_999;
+    parameter TOGGLE_4 = 24_999_999;
+    parameter TOGGLE_2 = 49_999_999;
 
     wire bird_clk;        
     reg [2:0] bird_cnt = 2'b00;
+    reg [31:0] toggle;
     
-    Clk_Gen bird_clk_gen();
+    Clk_Gen bird_clk_gen(.clk100m(clk100m), .clk_out(bird_clk), .toggle(toggle));
     
 endmodule

@@ -30,17 +30,20 @@ module Freq_Indic(
     output reg [15:0] oled_data
     );
     
-    wire [30:0] freq_bins [0:14];
+    
     reg [5:0] freq_reg [0:14];
     reg [6:0] seg_tens = 7'b0;   
     reg [6:0] seg_ones = 7'b0;
     reg [12:0] freq_count = 0;
     reg [15:0] colour_border, colour_bg, colour_high, colour_mid, colour_low, colour_mid_high, colour_mid_mid;
     
+    /*
+    wire [30:0] freq_bins [0:14];
     genvar j;
     for (j = 0; j < 15; j = j + 1) begin
         assign freq_bins[j] = freq_cnts[30 * (j + 1) -: 31];
     end
+    */
 
     always @(*) begin
         case ({sw[1], sw[0]})
@@ -91,7 +94,7 @@ module Freq_Indic(
             if (frame_begin) begin : storefreq
                 integer k;
                 for (k = 0; k < 15; k = k + 1) begin
-                    freq_reg[k] <= freq_reg[k][17:12];
+                    freq_reg[k] <= freq_cnts[30 * (k + 1) - 13 -: 6];
                 end
             end
             
