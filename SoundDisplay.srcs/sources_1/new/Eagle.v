@@ -262,6 +262,6 @@ module Eagle(
                 an <= AN_0;
                 seg_cnt <= 2'b00;
             end
-         endcase
+        endcase
     end
 endmodule

@@ -53,22 +53,28 @@ module Space_Invader(
     input oled_clk,
     input [15:0] sw,
     input [11:0] mic_in,
+    input [15:0] intensity_reg,
     input [6:0] x,
     input [5:0] y,
     input mouse_data,
     input mouse_clk,
-    input [15:0] intensity_reg,
     input [464:0] freq_cnts,
     output reg [15:0] led,
     output reg [15:0] oled_data,
-    output reg [6:0] seg,
+    output [6:0] seg,
     output reg [3:0] an
 );
 
-reg [12:0] counter = 0;
+parameter AN_0 = 4'b0111;
+parameter AN_1 = 4'b1011;
+parameter AN_2 = 4'b1101;
+parameter AN_3 = 4'b1110;
+parameter SEG_A = 7'b0001000;
+parameter SEG_E = 7'b0110000;
+parameter SEG_D = 7'b0100001;
 
-reg [6:0] seg_tens = 7'b0;   
-reg [6:0] seg_ones = 7'b0;
+reg [1:0] seg_cnt = 2'b00;
+reg [6:0] seg_arr [0:3];
 
 reg [6:0] bottom_layer_left = 7'd43;
 reg [6:0] bottom_layer_right = 7'd53;
@@ -126,6 +132,14 @@ for (i = 0; i < 5; i = i + 1) begin
     end    
 end
 
+initial begin
+    seg_arr[0] = SEG_D;
+    seg_arr[1] = SEG_E;
+    seg_arr[2] = SEG_A;
+    seg_arr[3] = SEG_D;
+end
+assign seg = (player_dead) ? seg_arr[seg_cnt] : 7'b1111111;
+
 always @(*) begin
     case ({sw[1], sw[0]})
         2'b01: begin //ocean
@@ -175,29 +189,24 @@ always @(posedge mouse_clk) begin
 
     if(mouse_bits == 1 && mouse_data == 1 && player_shot == 1'b0) begin // shoot if the mouse is left clicked
         player_shot <= 1'b1;
-        player_shot_y <= top_layer_up;
         player_shot_x <= top_layer_left + 1;
     end
 end
 
 // move bullets
 always @(posedge game_clk) begin : game_update
-    integer i;
-    for (i = 0; i < 5; i = i + 1) begin
-        if (alien_shot[i]) begin
-           if (alien_shot_y[i] == `OLED_HEIGHT - 1) begin
-                alien_shot[i] <= 1'b0;
-            end else begin
-                alien_shot_y[i] <= alien_shot_y[i] + 1; 
-            end 
+    integer a;
+    for (a = 0; a < 5; a = i + 1) begin
+        if (alien_shot[a] && alien_shot_y[a] != `OLED_HEIGHT - 1) begin
+            alien_shot_y[a] <= alien_shot_y[a] + 1; 
+        end else begin
+            alien_shot_y[a] <= ALIEN_Y + 2;
         end
     end
-    if (player_shot) begin
-        if (player_shot_y == 0) begin
-            player_shot <= 1'b0;
-        end else begin
-            player_shot_y <= player_shot_y - 1;
-        end
+    if (player_shot && player_shot_y != 6'd0) begin
+        player_shot_y <= player_shot_y - 1;
+    end else begin
+        player_shot_y <= top_layer_up;
     end
 end
 
@@ -219,7 +228,6 @@ always @(posedge alien_clk) begin : alien_update
             if (alien_alive[a]) begin // see if we will shoot
                 if (freq_params[(3 * a) + 2] > ALIEN_THRESHOLD) begin
                     alien_shot[a] <= 1'b1;
-                    alien_shot_y[a] <= ALIEN_Y + 2;
                 end
             end else begin // see if alien will respawn, and if so, see what colour he will be
                 if (freq_params[3 * a] > ALIEN_THRESHOLD) begin
@@ -244,15 +252,15 @@ end
 // update position of player
 always @(posedge mic_clk) begin : genspaceship
     // check if player died
-    integer i;
-    for (i = 0; i < 5; i = i + 1) begin
-        if (alien_shot[i] &&
-        ((alien_shot_y[i] > top_layer_up && alien_shot_y[i] < middle_layer_up 
-            && alien_x[i] < top_layer_right && alien_x[i] > top_layer_left)
-        || (alien_shot_y[i] > middle_layer_up && alien_shot_y[i] < bottom_layer_up
-            && alien_x[i] < middle_layer_right && alien_x[i] > middle_layer_left)
-        || (alien_shot_y[i] > bottom_layer_up && alien_shot_y[i] < bottom_layer_down
-            && alien_x[i] < bottom_layer_right && alien_x[i] > bottom_layer_left))) begin
+    integer a;
+    for (a = 0; a < 5; a = a + 1) begin
+        if (alien_shot[a] &&
+        ((alien_shot_y[a] > top_layer_up && alien_shot_y[a] < middle_layer_up 
+            && alien_x[a] < top_layer_right && alien_x[a] > top_layer_left)
+        || (alien_shot_y[a] > middle_layer_up && alien_shot_y[a] < bottom_layer_up
+            && alien_x[a] < middle_layer_right && alien_x[a] > middle_layer_left)
+        || (alien_shot_y[a] > bottom_layer_up && alien_shot_y[a] < bottom_layer_down
+            && alien_x[a] < bottom_layer_right && alien_x[a] > bottom_layer_left))) begin
             player_dead <= 1'b1;
             score <= 4'd0;
             player_cooldown <= 2'b11;
@@ -275,6 +283,26 @@ always @(posedge mic_clk) begin : genspaceship
         top_layer_left <= (top_layer_left == 7'b0000111) ? 7'b0000111 : top_layer_left - 1;
         top_layer_right <= (top_layer_right == 7'b0001001) ? 7'b0001001 : top_layer_right - 1;
     end
+    
+    //cycling through characters
+    case (seg_cnt) //lol this is an FSM
+        2'b00: begin
+            an <= AN_1;
+            seg_cnt <= 2'b01;
+        end
+        2'b01: begin
+            an <= AN_2;
+            seg_cnt <= 2'b10;
+        end
+        2'b10: begin
+            an <= AN_3;
+            seg_cnt <= 2'b11;
+        end
+        2'b11: begin
+            an <= AN_0;
+            seg_cnt <= 2'b00;
+        end
+    endcase
 end
 
 always @(posedge oled_clk) begin
