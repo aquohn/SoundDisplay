@@ -73,24 +73,34 @@ parameter AN_1 = 4'b1011;
 parameter AN_2 = 4'b1101;
 parameter AN_3 = 4'b1110;
 parameter SEG_A = 7'b0001000;
-parameter SEG_E = 7'b0110000;
+parameter SEG_E = 7'b0000110;
 parameter SEG_D = 7'b0100001;
+parameter SEG_0 = 7'b1000000;
+parameter SEG_1 = 7'b1111001;
+parameter SEG_2 = 7'b0100100;
+parameter SEG_3 = 7'b0110000;
+parameter SEG_4 = 7'b0011001;
+parameter SEG_5 = 7'b0010010;
+parameter SEG_6 = 7'b0000010;
+parameter SEG_7 = 7'b1111000;
+parameter SEG_8 = 7'b0000000;
+parameter SEG_9 = 7'b0010000;
 
 reg [1:0] seg_cnt = 2'b00;
 reg [6:0] seg_arr [0:3];
 
 reg [6:0] bottom_layer_left = 7'd43;
 reg [6:0] bottom_layer_right = 7'd53;
-reg [6:0] bottom_layer_up = 7'd55;
-reg [6:0] bottom_layer_down = 7'd60;
+reg [6:0] bottom_layer_up = 7'd53;
+reg [6:0] bottom_layer_down = 7'd58;
 
 reg [6:0] middle_layer_left = 7'd45;
 reg [6:0] middle_layer_right = 7'd51;
-reg [6:0] middle_layer_up = 7'd52;
+reg [6:0] middle_layer_up = 7'd50;
 
 reg [6:0] top_layer_left = 7'd47;
 reg [6:0] top_layer_right = 7'd49;
-reg [6:0] top_layer_up = 7'd50;
+reg [6:0] top_layer_up = 7'd48;
 
 reg [5:0] mouse_bits;
 
@@ -103,6 +113,8 @@ Clk_Gen clk_alien_core (.clk100m(clk100m), .clk_out(alien_clk), .toggle(CNT_0P5_
 Clk_Gen clk_game_core (.clk100m(clk100m), .clk_out(game_clk), .toggle(CNT_64_TOGGLE));
 
 reg [4:0] score;
+reg [6:0] score_arr [0:3];
+reg [6:0] num_arr [0:9];
 
 parameter ALIEN_Y = 5;
 reg [15:0] alien_colours [0:4]; // note that colours persist even with change of colour theme
@@ -115,11 +127,11 @@ reg alien_clk_pipe, alien_clk_reg, game_clk_pipe, game_clk_reg;
 wire alien_clk_signal;
 wire game_clk_signal;
 
-reg [1:0] player_cooldown = 2'b00;
+reg player_cooldown = 1'b0;
 reg player_dead = 1'b0;
 reg player_shot = 1'b0;
 reg [6:0] player_shot_y;
-reg [5:0] player_shot_x;
+reg [6:0] player_shot_x;
 
 parameter ALIEN_THRESHOLD = 2'b11;
 wire [5:0] freq_params [0:14];
@@ -146,8 +158,19 @@ initial begin
     seg_arr[1] = SEG_E;
     seg_arr[2] = SEG_A;
     seg_arr[3] = SEG_D;
+    num_arr[0] = SEG_0;
+    num_arr[1] = SEG_1;
+    num_arr[2] = SEG_2;
+    num_arr[3] = SEG_3;
+    num_arr[4] = SEG_4;
+    num_arr[5] = SEG_5;
+    num_arr[6] = SEG_6;
+    num_arr[7] = SEG_7;
+    num_arr[8] = SEG_8;
+    num_arr[9] = SEG_9;
 end
-assign seg = (player_dead) ? seg_arr[seg_cnt] : 7'b1111111;
+
+assign seg = (player_dead) ? seg_arr[seg_cnt] : score_arr[seg_cnt];
 
 always @(*) begin : connections
     integer i;
@@ -190,10 +213,15 @@ always @(*) begin : connections
         end    
     endcase
     
-    led[15] = player_shot;//sw[15];
+    //led[15] = player_shot;//sw[15];
     for (i = 0; i < 15; i = i + 1) begin
         led[i] = (freq_params[14 - i] > ALIEN_THRESHOLD) ? 1'b1 : 1'b0; 
     end
+    
+    score_arr[0] = num_arr[score / 1000];
+    score_arr[1] = num_arr[(score / 100) % 10];
+    score_arr[2] = num_arr[(score / 10) % 10];
+    score_arr[3] = num_arr[score % 10];
 end
 
 always @(posedge mic_clk) begin 
@@ -268,6 +296,7 @@ always @(posedge oled_clk) begin : update_game
                                 alien_cooldown[a] <= 1'b1;
                                 player_shot <= 1'b0;
                                 score <= score + 1;
+                                player_shot_y <= top_layer_up;
                             end
                             oled_data <= alien_colours[a];
                         end
@@ -279,6 +308,7 @@ always @(posedge oled_clk) begin : update_game
                                 alien_cooldown[a] <= 1'b1;
                                 player_shot <= 1'b0;
                                 score <= score + 1;
+                                player_shot_y <= top_layer_up;
                             end
                             oled_data <= alien_colours[a];
                         end
@@ -290,6 +320,7 @@ always @(posedge oled_clk) begin : update_game
                                 alien_cooldown[a] <= 1'b1;
                                 player_shot <= 1'b0;
                                 score <= score + 1;
+                                player_shot_y <= top_layer_up;
                             end
                             oled_data <= alien_colours[a];
                         end
@@ -301,6 +332,7 @@ always @(posedge oled_clk) begin : update_game
                                 alien_cooldown[a] <= 1'b1;
                                 player_shot <= 1'b0;
                                 score <= score + 1;
+                                player_shot_y <= top_layer_up;
                             end
                             oled_data <= alien_colours[a];
                         end
@@ -312,6 +344,7 @@ always @(posedge oled_clk) begin : update_game
                                 alien_cooldown[a] <= 1'b1;
                                 player_shot <= 1'b0;
                                 score <= score + 1;
+                                player_shot_y <= top_layer_up;
                             end
                             oled_data <= alien_colours[a];
                         end
@@ -349,6 +382,8 @@ always @(posedge oled_clk) begin : update_game
                     alien_shot[a] <= 1'b0;
                     alien_shot_y[a] <= ALIEN_Y + 2;
                 end
+            end else begin
+                alien_shot_y[a] <= ALIEN_Y + 2;
             end
         end
         if (player_shot) begin
@@ -358,13 +393,15 @@ always @(posedge oled_clk) begin : update_game
                 player_shot <= 1'b0;
                 player_shot_y <= top_layer_up;
             end
+        end else begin
+            player_shot_y <= top_layer_up;
         end
     end
     
     if (alien_clk_signal) begin // update alien behaviour
         if (player_dead) begin
-            if (player_cooldown > 0) begin
-                player_cooldown <= player_cooldown - 1;
+            if (player_cooldown) begin
+                player_cooldown <= 1'b0;
             end else begin
                 player_dead <= 1'b0;
             end 
@@ -375,11 +412,11 @@ always @(posedge oled_clk) begin : update_game
                 alien_cooldown[a] <= 1'b0;
             end else begin // handicap for a == 2 (high frequency)
                 if (alien_alive[a]) begin // see if we will shoot
-                    if ((freq_params[(3 * a) + 2] > ALIEN_THRESHOLD || (freq_params[(3 * a) + 2] > 0 && a == 2)) && ~alien_shot[a]) begin
+                    if ((freq_params[(3 * a)] > ALIEN_THRESHOLD || (freq_params[6] > 0 && a == 2)) && ~alien_shot[a]) begin
                         alien_shot[a] <= 1'b1;
                     end
                 end else begin // see if alien will respawn, and if so, see what colour he will be
-                    if (freq_params[(3 * a)] > ALIEN_THRESHOLD || (freq_params[(3 * a)] > 0 && a == 2)) begin
+                    if (freq_params[(3 * a) + 2] > ALIEN_THRESHOLD || (freq_params[8] > 0 && a == 2)) begin
                         alien_alive[a] <= 1'b1;
                         if (freq_params[(3 * a) + 1] > 48) begin
                             alien_colours[a] <= colour_high;
@@ -410,7 +447,7 @@ always @(posedge oled_clk) begin : update_game
                 alien_shot[a] <= 1'b0;
                 player_dead <= 1'b1;
                 score <= 4'd0;
-                player_cooldown <= 2'b10;
+                player_cooldown <= 1'b1;
             end else if (x >= alien_x[a] - 1 && x <= alien_x[a] + 1 
             && y >= alien_shot_y[a] - 1 && y <= alien_shot_y[a] + 1) begin // draw bullet
                 oled_data <= alien_colours[a];

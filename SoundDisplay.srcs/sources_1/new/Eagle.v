@@ -49,7 +49,7 @@ module Eagle(
     parameter SEG_I = 7'b1001111;
     parameter SEG_G = 7'b0000100;
     parameter SEG_M = 7'b1101010;
-    parameter SEG_E = 7'b0110000;
+    parameter SEG_E = 7'b0000110;
     parameter SEG_D = 7'b0100001;
     parameter SEG_L = 7'b1000111;
     parameter SEG_O = 7'b1000000;
