@@ -103,11 +103,13 @@ reg [5:0] alien_shot_y [0:4];
 reg alien_alive [0:4];
 reg alien_cooldown [0:4];
 
+reg [1:0] player_cooldown = 2'b00;
 reg player_dead = 1'b0;
 reg player_shot = 1'b0;
-reg [4:0] player_shot_y;
-reg [4:0] player_shot_x;
+reg [6:0] player_shot_y;
+reg [5:0] player_shot_x;
 
+parameter ALIEN_THRESHOLD = 2'b11;
 wire [5:0] freq_params [0:14];
 genvar i;
 for (i = 0; i < 15; i = i + 1) begin
@@ -118,9 +120,8 @@ for (i = 0; i < 5; i = i + 1) begin
     assign alien_x[i] = 7 + 10 * i;
     initial begin
         alien_shot[i] = 1'b0;
-        alien_shot_y[i] = ALIEN_Y + 2;
-        alien_alive[i] = 1'b1;
         alien_cooldown[i] = 1'b0;
+        alien_alive[i] = 1'b1;
         alien_colours[i] = colour_border;
     end    
 end
@@ -174,8 +175,8 @@ always @(posedge mouse_clk) begin
 
     if(mouse_bits == 1 && mouse_data == 1 && player_shot == 1'b0) begin // shoot if the mouse is left clicked
         player_shot <= 1'b1;
-        player_shot_x <= top_layer_left + 1;
         player_shot_y <= top_layer_up;
+        player_shot_x <= top_layer_left + 1;
     end
 end
 
@@ -186,7 +187,6 @@ always @(posedge game_clk) begin : game_update
         if (alien_shot[i]) begin
            if (alien_shot_y[i] == `OLED_HEIGHT - 1) begin
                 alien_shot[i] <= 1'b0;
-                alien_shot_y[i] <= ALIEN_Y + 2;
             end else begin
                 alien_shot_y[i] <= alien_shot_y[i] + 1; 
             end 
@@ -195,7 +195,6 @@ always @(posedge game_clk) begin : game_update
     if (player_shot) begin
         if (player_shot_y == 0) begin
             player_shot <= 1'b0;
-            player_shot_y <= top_layer_up;
         end else begin
             player_shot_y <= player_shot_y - 1;
         end
@@ -204,7 +203,42 @@ end
 
 // spawn aliens and shoot
 always @(posedge alien_clk) begin : alien_update
+    integer a;
+    if (player_dead) begin
+        if (player_cooldown > 0) begin
+            player_cooldown <= player_cooldown - 1;
+        end else begin
+            player_dead <= 1'b1;
+        end
+    end
     
+    for (a = 0; a < 5; a = a + 1) begin
+        if (alien_cooldown[a]) begin // reset cooldown
+            alien_cooldown[a] <= 1'b0;
+        end else begin
+            if (alien_alive[a]) begin // see if we will shoot
+                if (freq_params[(3 * a) + 2] > ALIEN_THRESHOLD) begin
+                    alien_shot[a] <= 1'b1;
+                    alien_shot_y[a] <= ALIEN_Y + 2;
+                end
+            end else begin // see if alien will respawn, and if so, see what colour he will be
+                if (freq_params[3 * a] > ALIEN_THRESHOLD) begin
+                    alien_alive[a] <= 1'b1;
+                    if (freq_params[(3 * a) + 1] > 48) begin
+                        alien_colours[a] <= colour_high;
+                    end else if (freq_params[(3 * a) + 1] > 36) begin
+                        alien_colours[a] <= colour_mid_high;
+                    end else if (freq_params[(3 * a) + 1] > 24) begin
+                        alien_colours[a] <= colour_mid;
+                    end else if (freq_params[(3 * a) + 1] > 12) begin
+                        alien_colours[a] <= colour_mid_mid;
+                    end else begin
+                        alien_colours[a] <= colour_low;
+                    end
+                end
+            end
+        end
+    end
 end
 
 // update position of player
@@ -221,6 +255,7 @@ always @(posedge mic_clk) begin : genspaceship
             && alien_x[i] < bottom_layer_right && alien_x[i] > bottom_layer_left))) begin
             player_dead <= 1'b1;
             score <= 4'd0;
+            player_cooldown <= 2'b11;
         end            
     end
 
@@ -270,33 +305,40 @@ always @(posedge oled_clk) begin
                 case (y - ALIEN_Y)
                     5'd0: begin
                         if (x <= alien_x[a] + 2 && x >= alien_x[a] - 2) begin
-                            if (x == player_shot_x && y == player_shot_y) begin
+                            if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
                                 alien_cooldown[a] <= 1'b1;
+                                player_shot <= 1'b0;
                             end
                             oled_data <= alien_colours[a];
                         end
                     end
                     5'd1: begin
                         if (x <= alien_x[a] + 1 && x >= alien_x[a] - 1) begin
-                            if (x == player_shot_x && y == player_shot_y) begin
+                            if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
                                 alien_cooldown[a] <= 1'b1;
+                                player_shot <= 1'b0;
                             end
                             oled_data <= alien_colours[a];
                         end
                     end
                     5'd2: begin
                         if (x == alien_x[a]) begin
-                            if (x == player_shot_x && y == player_shot_y) begin
+                            if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
                                 alien_cooldown[a] <= 1'b1;
+                                player_shot <= 1'b0;
                             end
                             oled_data <= alien_colours[a];
                         end
                     end
                 endcase
             end
+            
+            if (alien_shot[a]) begin
+                if (x == alien_x[a] && y == alien_shot_y[a]) oled_data <= alien_colours[a];
+            end 
         end
     end
     
