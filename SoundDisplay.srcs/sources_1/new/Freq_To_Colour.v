@@ -31,8 +31,8 @@ module Freq_To_Colour(
     output reg [4:0] b = 5'b0
     );
     
-    parameter RED_LIMIT = 64;
-    parameter GREEN_LIMIT = 128;
+    parameter RED_LIMIT = 128;
+    parameter GREEN_LIMIT = 384;
     parameter BLUE_LIMIT = 512;
     
     reg [33:0] r_sum = 34'b0;
@@ -44,8 +44,8 @@ module Freq_To_Colour(
     always @(posedge clk) begin
         start_pipe <= start;
         if (start_pipe) begin
-            r <= r_sum[18:14];
-            g <= g_sum[18:13];
+            r <= r_sum[19:15];
+            g <= g_sum[19:14];
             b <= b_sum[19:15];
             r_sum <= 34'b0;
             g_sum <= 34'b0;

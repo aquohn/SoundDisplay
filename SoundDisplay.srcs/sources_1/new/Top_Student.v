@@ -46,7 +46,7 @@ module Top_Student (
     reg btnC_pipe, btnC_reg, btnU_pipe, btnU_reg, btnR_pipe, btnR_reg, btnL_pipe, btnL_reg, btnD_pipe, btnD_reg;
     wire btnC_signal, btnU_signal, btnR_signal, btnL_signal, btnD_signal;
     wire clk20k, clk6p25m, clk20;
-    parameter MODE_MAX = 4'b0110; // change to actual number of modes later
+    parameter MODE_MAX = 4'b0111; // change to actual number of modes later
     wire [15:0] intensity_reg;
     
     // signals for mic
@@ -116,6 +116,12 @@ module Top_Student (
     // output from freq indicator
     wire [15:0] oled_freq;
     
+    //output from eagle
+    wire [15:0] led_eagle;
+    wire [6:0] seg_eagle;
+    wire [3:0] an_eagle;
+    wire [15:0] oled_eagle;
+    
     // Button debouncing
     assign btnC_signal = ~btnC_reg & btnC_pipe;
     assign btnU_signal = ~btnU_reg & btnU_pipe;
@@ -182,6 +188,13 @@ module Top_Student (
     // Frequency indicator
     Freq_Indic freq_indic (.sw(sw), .oled_clk(clk6p25m), .freq_cnts(freq_cnts), .x(x), .y(y), 
                 .oled_data(oled_freq), .frame_begin(frame_begin));
+    
+    // Frequency indicator
+    Eagle eagle (.sw(sw), .r(r), .g(g), .b(b), .oled_clk(clk6p25m), .clk100m(clk_in),
+                .led(led_eagle), .oled_data(oled_eagle), .seg(seg_eagle), .an(an_eagle), 
+                .frame_begin(frame_begin), .clk20(clk20), .pixel_index(pixel_index),
+                .btnU_signal(btnU_signal), .btnR_signal(btnR_signal), 
+                .btnL_signal(btnL_signal), .btnD_signal(btnD_signal));
            
     // Multiplexer to select output from chosen module
     //
@@ -232,6 +245,13 @@ module Top_Student (
                 an = an_basic;
                 dp = 1'b1;
             end
+            4'b0111: begin // flying eagle
+                led = led_eagle;
+                oled_data = oled_eagle;
+                seg = seg_eagle;
+                an = an_eagle;
+                dp = 1'b1;
+            end
             default: begin //default to basic functionality
                 led = led_basic;
                 oled_data = oled_basic;
@@ -249,8 +269,8 @@ module Top_Student (
         btnU_reg <= btnU_pipe;
         btnL_pipe <= btnL;
         btnL_reg <= btnL_pipe;
-        btnL_pipe <= btnL;
-        btnL_reg <= btnL_pipe;
+        btnR_pipe <= btnR;
+        btnR_reg <= btnR_pipe;
         btnD_pipe <= btnD;
         btnD_reg <= btnD_pipe;
         
