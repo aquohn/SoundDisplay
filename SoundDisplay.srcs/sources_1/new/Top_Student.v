@@ -223,10 +223,10 @@ module Top_Student (
                 dp = 1'b1;
             end
             4'b0101: begin
-                led = led_basic;
+                led = led_space;
                 oled_data = oled_space;
-                seg = seg_basic;
-                an = an_basic;
+                seg = seg_space;
+                an = an_space;
                 dp = 1'b1;
             end
             4'b0110: begin // flying eagle

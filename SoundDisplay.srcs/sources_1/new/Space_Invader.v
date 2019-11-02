@@ -146,31 +146,31 @@ assign seg = (player_dead) ? seg_arr[seg_cnt] : 7'b1111111;
 always @(*) begin
     case ({sw[1], sw[0]})
         2'b01: begin //ocean
-        colour_border = {5'd4, 6'd15, 5'd11};
-        colour_bg = {5'd29, 6'd58, 5'd25};
-        colour_high = {5'd19, 6'd47, 5'd24};
-        colour_mid_high = {5'd11, 6'd37, 5'd30};
-        colour_mid = {5'd5, 6'd30, 5'd30};
-        colour_mid_mid = {5'd2, 6'd14, 5'd15};
-        colour_low = {5'd4, 6'd15, 5'd11};                
-    end
-    2'b10: begin //earth
-    colour_border = {5'd27, 6'd46, 5'd2};
-    colour_bg = {5'd29, 6'd56, 5'd21};
-    colour_high = {5'd22, 6'd58, 5'd15};
-    colour_mid_high = {5'd15, 6'd59, 5'd16};
-    colour_mid = {5'd6, 6'd50, 5'd10};
-    colour_mid_mid = {5'd13, 6'd40, 5'd10};
-    colour_low = {5'd8, 6'd30, 5'd9};                                 
-end
-2'b11: begin //enhancement colour scheme: sunset
-colour_border = {5'd31, 6'd54, 5'd22};
-colour_bg = {5'd6, 6'd14, 5'd10};
-colour_high = {5'd31, 6'd41, 5'd22};
-colour_mid_high = {5'd25, 6'd46, 5'd30};
-colour_mid = {5'd18, 6'd32, 5'd22};
-colour_mid_mid = {5'd21, 6'd33, 5'd20};
-colour_low = {5'd10, 6'd21, 5'd15}; 
+            colour_border = {5'd4, 6'd15, 5'd11};
+            colour_bg = {5'd29, 6'd58, 5'd25};
+            colour_high = {5'd19, 6'd47, 5'd24};
+            colour_mid_high = {5'd11, 6'd37, 5'd30};
+            colour_mid = {5'd5, 6'd30, 5'd30};
+            colour_mid_mid = {5'd2, 6'd14, 5'd15};
+            colour_low = {5'd4, 6'd15, 5'd11};                
+        end
+        2'b10: begin //earth
+            colour_border = {5'd27, 6'd46, 5'd2};
+            colour_bg = {5'd29, 6'd56, 5'd21};
+            colour_high = {5'd22, 6'd58, 5'd15};
+            colour_mid_high = {5'd15, 6'd59, 5'd16};
+            colour_mid = {5'd6, 6'd50, 5'd10};
+            colour_mid_mid = {5'd13, 6'd40, 5'd10};
+            colour_low = {5'd8, 6'd30, 5'd9};                                 
+        end
+        2'b11: begin //enhancement colour scheme: sunset
+        colour_border = {5'd31, 6'd54, 5'd22};
+        colour_bg = {5'd6, 6'd14, 5'd10};
+        colour_high = {5'd31, 6'd41, 5'd22};
+        colour_mid_high = {5'd25, 6'd46, 5'd30};
+        colour_mid = {5'd18, 6'd32, 5'd22};
+        colour_mid_mid = {5'd21, 6'd33, 5'd20};
+        colour_low = {5'd10, 6'd21, 5'd15}; 
         end
         default: begin
             colour_border = `OLED_WHITE;
@@ -181,20 +181,9 @@ colour_low = {5'd10, 6'd21, 5'd15};
             colour_mid_mid = {5'd22, 6'd58, 5'd5};
             colour_low = `OLED_GREEN;                    
         end    
-    endcase       
-end
-
-// counting the number of bits receiving from the Mouse Data 
-// 33 bits to be received from the Mouse 
-always @(posedge mouse_clk) begin
-    if (player_shot) player_shooting <= 1'b0;
-    if(mouse_bits <= 31) mouse_bits <= mouse_bits + 1;
-    else mouse_bits <= 0;
-
-    if(mouse_bits == 1 && mouse_data == 1 && player_shot == 1'b0) begin // shoot if the mouse is left clicked
-        player_shooting <= 1'b1;
-        player_shot_x <= top_layer_left + 1;
-    end
+    endcase
+    
+    led[15] = sw[15];
 end
 
 always @(posedge mic_clk) begin 
