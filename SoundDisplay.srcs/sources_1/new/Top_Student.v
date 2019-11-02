@@ -83,12 +83,6 @@ module Top_Student (
     wire [3:0] an_basic;
     wire [15:0] oled_basic;
     
-    //output from fractal
-    wire [15:0] led_fractal;
-    wire [6:0] seg_fractal;
-    wire [3:0] an_fractal;
-    wire [15:0] oled_fractal;
-    
     //output from vertical bar volume indicator
     wire [15:0] led_vertical;
     wire [6:0] seg_vertical;
@@ -175,11 +169,6 @@ module Top_Student (
     // Vertical Bar Volume Indicator 
     Vol_Indic_Circle vol_indic_circle (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_circle), .oled_data(oled_circle), .seg(seg_circle),
                 .an(an_circle), .x(x), .y(y), .intensity_reg(intensity_reg));
-            
-    // Fractal visualiser module
-    Fractal fractal (.x(x), .y(y), .r(r), .g(g), .b(b), .oled_clk(clk6p25m), .clk100m(clk_in),
-            .led(led_fractal), .oled_data(oled_fractal), .seg(seg_fractal), .an(an_fractal), 
-            .frame_begin(frame_begin), .clk20(clk20));
     
     // Space Invader Game 
     Space_Invader space_invader (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_space), .oled_data(oled_space), .seg(seg_space),
@@ -204,10 +193,10 @@ module Top_Student (
     always @(*) begin
         case (sys_mode)
             4'b0001: begin
-                led = led_fractal;
-                oled_data = oled_fractal;
-                seg = seg_fractal;
-                an = an_fractal;
+                led = led_basic;
+                oled_data = oled_freq;
+                seg = seg_basic;
+                an = an_basic;
                 dp = 1'b1;
             end
             4'b0010: begin
@@ -238,14 +227,7 @@ module Top_Student (
                 an = an_space;
                 dp = 1'b1;
             end
-            4'b0110: begin // frequency indicator
-                led = led_basic;
-                oled_data = oled_freq;
-                seg = seg_basic;
-                an = an_basic;
-                dp = 1'b1;
-            end
-            4'b0111: begin // flying eagle
+            4'b0110: begin // flying eagle
                 led = led_eagle;
                 oled_data = oled_eagle;
                 seg = seg_eagle;

@@ -70,7 +70,6 @@ module FFT(
     // fft signals
     reg [9:0] load_cnt = 10'b0; // the number of amplitudes read in thus far
     reg [9:0] ampl_addr_out = 10'b0; // the address from which to read amplitude data
-    reg fft_done_pipe; // strobed one cycle after fft completion
     
     parameter N_SUB_1 = 1023; // one less than the transform size
     
@@ -128,9 +127,6 @@ module FFT(
             load_cnt <= 10'b0;
             freq_addr <= 10'b0;
         end
-        
-        // delay done signal to allow last value to be added
-        fft_done_pipe <= fft_done;
     end
     
     //magnitude hack from https://openofdm.readthedocs.io/en/latest/verilog.html
