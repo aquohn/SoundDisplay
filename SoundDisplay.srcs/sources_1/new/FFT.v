@@ -130,7 +130,6 @@ module FFT(
     end
     
     //magnitude hack from https://openofdm.readthedocs.io/en/latest/verilog.html
-    
     assign freq_re_abs = (freq_re[23]) ? ~(freq_re[22:0]) + 1 : freq_re[22:0];
     assign freq_im_abs = (freq_im[23]) ? ~(freq_im[22:0]) + 1 : freq_im[22:0];
     assign freq_mag = (freq_re_abs > freq_im_abs) ? freq_re_abs + (freq_im_abs[22:2]) : freq_im_abs + (freq_re_abs[22:2]);

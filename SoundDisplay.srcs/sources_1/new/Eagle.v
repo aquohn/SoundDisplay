@@ -197,20 +197,7 @@ module Eagle(
         endcase
     end
     
-    always @(posedge clk20) begin
-        case ({btnU_signal, btnD_signal, btnL_signal, btnR_signal})
-            4'b1000: dir <= UP;
-            4'b0100: dir <= DOWN;
-            4'b0010: dir <= LEFT;
-            4'b0001: dir <= RIGHT;
-        endcase
-    end
-    
     always @(posedge bird_clk) begin
-        if (r > g && r > b) max_col <= REDMAX;
-        else if (b > g && b > r) max_col <= BLUEMAX;
-        else max_col <= GREENMAX;
-        
         bird_cnt <= (bird_cnt == 2'b10) ? 2'b00 : bird_cnt + 1;
     end
     
@@ -236,7 +223,18 @@ module Eagle(
     end
     
     //cycling through characters
-    always @(posedge clk100m) begin
+    always @(posedge clk20) begin
+        case ({btnU_signal, btnD_signal, btnL_signal, btnR_signal})
+            4'b1000: dir <= UP;
+            4'b0100: dir <= DOWN;
+            4'b0010: dir <= LEFT;
+            4'b0001: dir <= RIGHT;
+        endcase
+    
+        if (r > g && r > b) max_col <= REDMAX;
+        else if (b > g && b > r) max_col <= BLUEMAX;
+        else max_col <= GREENMAX;
+    
         case (seg_cnt) //lol this is an FSM
             2'b00: begin
                 an <= AN_1;
