@@ -21,6 +21,7 @@
 
 module Eagle(
     input oled_clk,
+    input seg_clk,
     input clk100m,
     input clk20,
     input frame_begin,
@@ -63,6 +64,7 @@ module Eagle(
     parameter REDMAX = 0;
     parameter BLUEMAX = 1;
     parameter GREENMAX = 2;
+    parameter UPDATE_MAX = 4'b1111;
     
     parameter TOGGLE_8 = 12_499_999;
     parameter TOGGLE_4 = 24_999_999;
@@ -77,6 +79,7 @@ module Eagle(
     reg [1:0] bird_cnt = 2'b00;
     reg [1:0] max_col = REDMAX;
     reg [31:0] toggle;
+    reg [4:0] update_cnt = 5'b0;
     
     wire [15:0] up_out [0:2];
     wire [15:0] down_out [0:2];
@@ -87,16 +90,16 @@ module Eagle(
     
     // "incorrect" indexing is intentional
     up1 up1_bram (.clk(oled_clk), .addr(pixel_index), .pixel(up_out[0]));
-    up2 up2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(up_out[2]));
-    up3 up3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(up_out[1]));
+    up2 up2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(up_out[1]));
+    up3 up3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(up_out[2]));
     
     down1 down1_bram (.clk(oled_clk), .addr(pixel_index), .pixel(down_out[0]));
-    down2 down2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(down_out[2]));
-    down3 down3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(down_out[1]));
+    down2 down2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(down_out[1]));
+    down3 down3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(down_out[2]));
     
     left1 left1_bram (.clk(oled_clk), .addr(pixel_index), .pixel(left_out[0]));
-    left2 left2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(left_out[2]));
-    left3 left3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(left_out[1]));
+    left2 left2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(left_out[1]));
+    left3 left3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(left_out[2]));
         
     right1 right1_bram (.clk(oled_clk), .addr(pixel_index), .pixel(right_out[0]));
     right2 right2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(right_out[2]));
@@ -222,7 +225,6 @@ module Eagle(
         endcase
     end
     
-    //cycling through characters
     always @(posedge clk20) begin
         case ({btnU_signal, btnD_signal, btnL_signal, btnR_signal})
             4'b1000: dir <= UP;
@@ -230,11 +232,19 @@ module Eagle(
             4'b0010: dir <= LEFT;
             4'b0001: dir <= RIGHT;
         endcase
+        
+        if (update_cnt < UPDATE_MAX) begin
+            update_cnt <= update_cnt + 1;
+        end else begin
+            update_cnt <= 5'b00000;
+            if (r > g && r > b) max_col <= REDMAX;
+            else if (b > g && b > r) max_col <= BLUEMAX;
+            else max_col <= GREENMAX;
+        end
+    end
     
-        if (r > g && r > b) max_col <= REDMAX;
-        else if (b > g && b > r) max_col <= BLUEMAX;
-        else max_col <= GREENMAX;
-    
+    //cycling through characters
+    always @(posedge seg_clk) begin
         case (seg_cnt) //lol this is an FSM
             2'b00: begin
                 an <= AN_1;

@@ -6,7 +6,7 @@ module up1(
     output reg [15:0] pixel
 );
 
-    always @(posedge clk) begin
+    (* ram_style = "block" *) always @(posedge clk) begin
         case (addr)
            13'd745: pixel <= {5'd20, 6'd50, 5'd28};
            13'd746: pixel <= {5'd26, 6'd57, 5'd30};

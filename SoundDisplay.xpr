@@ -82,28 +82,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sources_1/new/Eagle.v">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
       <File Path="$PSRCDIR/sources_1/new/FFT.v">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PSRCDIR/sources_1/new/Freq_Div.v">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PSRCDIR/sources_1/new/Freq_Indic.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -133,8 +112,42 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PSRCDIR/sources_1/new/Top_Student.v">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../../../SoundDisplay.srcs/sources_1/new/Top_Student.v"/>
+          <Attr Name="ImportTime" Val="1570395690"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/new/Eagle.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/new/Freq_Div.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/new/Freq_Indic.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <File Path="$PSRCDIR/sources_1/new/Vol_Indic.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -142,6 +155,7 @@
       </File>
       <File Path="$PSRCDIR/sources_1/new/Vol_Indic_Circle.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -149,6 +163,7 @@
       </File>
       <File Path="$PSRCDIR/sources_1/new/Vol_Indic_Square.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -156,15 +171,7 @@
       </File>
       <File Path="$PSRCDIR/sources_1/new/Vol_Indic_Ver_Bar.v">
         <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PSRCDIR/sources_1/new/Top_Student.v">
-        <FileInfo>
-          <Attr Name="ImportPath" Val="$PPRDIR/../../../../SoundDisplay.srcs/sources_1/new/Top_Student.v"/>
-          <Attr Name="ImportTime" Val="1570395690"/>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -262,6 +269,7 @@
     <FileSet Name="up1" Type="BlockSrcs" RelSrcDir="$PSRCDIR/up1">
       <File Path="$PSRCDIR/sources_1/new/up1.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -283,6 +291,7 @@
     <FileSet Name="up2" Type="BlockSrcs" RelSrcDir="$PSRCDIR/up2">
       <File Path="$PSRCDIR/sources_1/new/up2.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -304,6 +313,7 @@
     <FileSet Name="up3" Type="BlockSrcs" RelSrcDir="$PSRCDIR/up3">
       <File Path="$PSRCDIR/sources_1/new/up3.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -325,6 +335,7 @@
     <FileSet Name="down1" Type="BlockSrcs" RelSrcDir="$PSRCDIR/down1">
       <File Path="$PSRCDIR/sources_1/new/down1.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -346,6 +357,7 @@
     <FileSet Name="down2" Type="BlockSrcs" RelSrcDir="$PSRCDIR/down2">
       <File Path="$PSRCDIR/sources_1/new/down2.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -367,6 +379,7 @@
     <FileSet Name="down3" Type="BlockSrcs" RelSrcDir="$PSRCDIR/down3">
       <File Path="$PSRCDIR/sources_1/new/down3.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -388,6 +401,7 @@
     <FileSet Name="left1" Type="BlockSrcs" RelSrcDir="$PSRCDIR/left1">
       <File Path="$PSRCDIR/sources_1/new/left1.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -409,6 +423,7 @@
     <FileSet Name="left2" Type="BlockSrcs" RelSrcDir="$PSRCDIR/left2">
       <File Path="$PSRCDIR/sources_1/new/left2.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -430,6 +445,7 @@
     <FileSet Name="left3" Type="BlockSrcs" RelSrcDir="$PSRCDIR/left3">
       <File Path="$PSRCDIR/sources_1/new/left3.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -451,6 +467,7 @@
     <FileSet Name="right1" Type="BlockSrcs" RelSrcDir="$PSRCDIR/right1">
       <File Path="$PSRCDIR/sources_1/new/right1.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -472,6 +489,7 @@
     <FileSet Name="right2" Type="BlockSrcs" RelSrcDir="$PSRCDIR/right2">
       <File Path="$PSRCDIR/sources_1/new/right2.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -486,6 +504,7 @@
     <FileSet Name="right3" Type="BlockSrcs" RelSrcDir="$PSRCDIR/right3">
       <File Path="$PSRCDIR/sources_1/new/right3.v">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>

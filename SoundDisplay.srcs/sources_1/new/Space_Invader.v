@@ -37,7 +37,18 @@
  * sw[15]: constant LED indicator (Task 1 requirement)
  */
  
+ /**
+  * Read the frequency bins of the FFT. Analyse bins as follows:
+  *
+  * bin[3n +: 3] governs the behaviour of alien n:
+  * - If 3n is more than 1/2, create the alien if it is dead
+  * - If creating an alien, use 3n + 1 to determine the alien's colour
+  * - If 3n + 2 is more than 1/2, shoot the player
+  *   
+  */
+ 
 module Space_Invader(
+    input clk100m,
     input mic_clk,
     input oled_clk,
     input [15:0] sw,
@@ -78,6 +89,17 @@ module Space_Invader(
     reg [5:0] mouse_bits;
     
     reg [15:0] colour_border, colour_bg, colour_high, colour_mid, colour_low, colour_mid_high, colour_mid_mid;
+    
+    parameter CNT_64_TOGGLE = 1562499;
+    parameter CNT_0P2_TOGGLE = 500_000_000;
+    wire game_clk, alien_clk;
+    Clk_Gen clk_alien_core (.clk100m(clk100m), .clk_out(alien_clk), .toggle(CNT_0P2_TOGGLE));
+    Clk_Gen clk_game_core (.clk100m(clk100m), .clk_out(game_clk), .toggle(CNT_64_TOGGLE));
+    
+    parameter ALIEN_Y = 5;
+    reg [15:0] alien_colour [0:4];
+    reg [6:0] alien_x [0:4];
+    reg cooldown_cnt [0:4];
 
     always @(*) begin
         case ({sw[1], sw[0]})
