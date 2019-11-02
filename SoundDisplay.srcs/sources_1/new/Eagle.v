@@ -35,7 +35,7 @@ module Eagle(
     input btnD_signal,
     output reg [15:0] led,
     output reg [15:0] oled_data,
-    output reg [6:0] seg,
+    output [6:0] seg,
     output reg [3:0] an
     );
     
@@ -45,7 +45,14 @@ module Eagle(
     parameter AN_3 = 4'b1110;
     
     parameter SEG_H = 7'b0001001;
+    parameter SEG_I = 7'b1001111;
+    parameter SEG_G = 7'b0000100;
+    parameter SEG_M = 7'b1101010;
+    parameter SEG_E = 7'b0110000;
+    parameter SEG_D = 7'b0100001;
+    parameter SEG_L = 7'b1000111;
     parameter SEG_O = 7'b1000000;
+    parameter SEG_W = 7'b1010101;
     parameter SEG_SPACE = 7'b1111111;
     
     parameter UP = 0;
@@ -62,6 +69,7 @@ module Eagle(
     parameter TOGGLE_16 = 6_249_999;
     
     reg [1:0] seg_cnt = 2'b00;
+    reg [6:0] seg_arr [0:3];
 
     wire bird_clk;
     reg [1:0] dir = 2'b00;
@@ -94,26 +102,97 @@ module Eagle(
     right2 right2_bram (.clk(oled_clk), .addr(pixel_index), .pixel(right_out[2]));
     right3 right3_bram (.clk(oled_clk), .addr(pixel_index), .pixel(right_out[1]));
     
+    assign seg = seg_arr[seg_cnt];
+    
     always @(*) begin
-        // TODO: say HIGH - MID - LOW
-        seg = 7'b1111111;
         case (max_col)
             REDMAX: begin
                 toggle = TOGGLE_4;
                 led[4:0] = r;
+                case (1'b1)
+                    r[4]: led[4:0] = 5'b11111;
+                    r[3]: begin
+                        led[3:0] = 4'b1111;
+                        led[4] = 1'b0;
+                    end
+                    r[2]: begin
+                        led[2:0] = 3'b111;
+                        led[4:3] = 2'b11;
+                    end
+                    r[1]: begin
+                        led[1:0] = 2'b11;
+                        led[4:2] = 3'b000;
+                    end
+                    r[0]: begin
+                        led[0] = 1'b1;
+                        led[4:1] = 4'b0000;
+                    end
+                    default: led[4:0] = 5'b00000;
+                endcase
                 led[15:5] = 11'b0;
+                seg_arr[0] = SEG_SPACE;
+                seg_arr[1] = SEG_L;
+                seg_arr[2] = SEG_O;
+                seg_arr[3] = SEG_W;
             end
             BLUEMAX: begin
                 toggle = TOGGLE_16;
-                led[14:10] = b;
                 led[9:0] = 10'b1111111111;
                 led[15] = 1'b0;
+                case (1'b1)
+                    b[4]: led[14:10] = 5'b11111;
+                    b[3]: begin
+                        led[13:10] = 4'b1111;
+                        led[14] = 1'b0;
+                    end
+                    b[2]: begin
+                        led[12:10] = 3'b111;
+                        led[14:13] = 2'b11;
+                    end
+                    b[1]: begin
+                        led[11:10] = 2'b11;
+                        led[14:12] = 3'b000;
+                    end
+                    b[0]: begin
+                        led[10] = 1'b1;
+                        led[14:11] = 4'b0000;
+                    end
+                    default: led[14:10] = 5'b00000;
+                endcase
+                seg_arr[0] = SEG_H;
+                seg_arr[1] = SEG_I;
+                seg_arr[2] = SEG_G;
+                seg_arr[3] = SEG_H;
             end
             default: begin
                 toggle = TOGGLE_8;
                 led[15:10] = 6'b0;
                 led[4:0] = 5'b11111;
                 led[9:5] = g;
+                case (1'b1)
+                    g[4]: led[9:5] = 5'b11111;
+                    g[3]: begin
+                        led[8:5] = 4'b1111;
+                        led[9] = 1'b0;
+                    end
+                    g[2]: begin
+                        led[7:5] = 3'b111;
+                        led[9:8] = 2'b11;
+                    end
+                    g[1]: begin
+                        led[6:5] = 2'b11;
+                        led[9:7] = 3'b000;
+                    end
+                    g[0]: begin
+                        led[5] = 1'b1;
+                        led[9:6] = 4'b0000;
+                    end
+                    default: led[9:5] = 5'b00000;
+                endcase
+                seg_arr[0] = SEG_SPACE;
+                seg_arr[1] = SEG_M;
+                seg_arr[2] = SEG_E;
+                seg_arr[3] = SEG_D;
             end
         endcase
     end
