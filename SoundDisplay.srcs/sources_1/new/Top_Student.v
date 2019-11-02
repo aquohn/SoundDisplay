@@ -153,11 +153,11 @@ module Top_Student (
     // Frequency to colour module
     (* use_dsp = "yes" *) Freq_To_Colour freq_to_colour (.clk(clk_in), .we(fft_out_rdy),
         .start(fft_done), .addr(freq_addr), .freq_mag(freq_mag), .r(r), .g(g), .b(b)); 
-    /*    
+        
     // Basic functionality module
     Vol_Indic vol_indic (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
             .an(an_basic), .x(x), .y(y), .intensity_reg(intensity_reg));
-            
+    /*        
     // Vertical Bar Volume Indicator 
     Vol_Indic_Ver_Bar vol_indic_ver (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_vertical), .oled_data(oled_vertical), .seg(seg_vertical),
                 .an(an_vertical), .x(x), .y(y), .intensity_reg(intensity_reg));
