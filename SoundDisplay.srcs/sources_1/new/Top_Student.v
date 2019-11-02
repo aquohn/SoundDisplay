@@ -136,7 +136,7 @@ module Top_Student (
         .clk_samp(J_MIC3_Pin1), .sclk(J_MIC3_Pin4), .sample(mic_in));
    
     // Oled setup
-    Oled_Display oled_display (.clk(clk6p25m), .reset(btnC_signal), .pixel_data(oled_data),
+    Oled_Display oled_display (.clk(clk6p25m), .reset(btnC_signal & sw[15]), .pixel_data(oled_data),
         .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]),
         .frame_begin(frame_begin), .pixel_index(pixel_index));
     Coord_Sys coord_sys (.pixel_index(pixel_index), .x(x), .y(y));

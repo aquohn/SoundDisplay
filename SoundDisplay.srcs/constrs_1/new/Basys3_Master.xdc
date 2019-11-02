@@ -294,3 +294,10 @@ set_property PULLUP true [get_ports mouse_data]
 
 
 
+
+connect_debug_port u_ila_0/probe0 [get_nets [list {space_invader/alien_shot_y[0]__0[0]} {space_invader/alien_shot_y[0]__0[1]} {space_invader/alien_shot_y[0]__0[2]} {space_invader/alien_shot_y[0]__0[3]} {space_invader/alien_shot_y[0]__0[4]} {space_invader/alien_shot_y[0]__0[5]}]]
+connect_debug_port u_ila_0/probe1 [get_nets [list {space_invader/alien_shot_y[3]__0[0]} {space_invader/alien_shot_y[3]__0[1]} {space_invader/alien_shot_y[3]__0[2]} {space_invader/alien_shot_y[3]__0[3]} {space_invader/alien_shot_y[3]__0[4]} {space_invader/alien_shot_y[3]__0[5]}]]
+connect_debug_port u_ila_0/probe2 [get_nets [list {space_invader/alien_shot_y[2]__0[0]} {space_invader/alien_shot_y[2]__0[1]} {space_invader/alien_shot_y[2]__0[2]} {space_invader/alien_shot_y[2]__0[3]} {space_invader/alien_shot_y[2]__0[4]} {space_invader/alien_shot_y[2]__0[5]}]]
+connect_debug_port u_ila_0/probe3 [get_nets [list {space_invader/alien_shot_y[1]__0[0]} {space_invader/alien_shot_y[1]__0[1]} {space_invader/alien_shot_y[1]__0[2]} {space_invader/alien_shot_y[1]__0[3]} {space_invader/alien_shot_y[1]__0[4]} {space_invader/alien_shot_y[1]__0[5]}]]
+connect_debug_port u_ila_0/probe4 [get_nets [list {space_invader/alien_shot_y[4]__0[0]} {space_invader/alien_shot_y[4]__0[1]} {space_invader/alien_shot_y[4]__0[2]} {space_invader/alien_shot_y[4]__0[3]} {space_invader/alien_shot_y[4]__0[4]} {space_invader/alien_shot_y[4]__0[5]}]]
+
