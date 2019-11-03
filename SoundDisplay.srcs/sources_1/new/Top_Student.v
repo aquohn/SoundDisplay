@@ -46,7 +46,7 @@ module Top_Student (
     reg btnC_pipe, btnC_reg, btnU_pipe, btnU_reg, btnR_pipe, btnR_reg, btnL_pipe, btnL_reg, btnD_pipe, btnD_reg;
     wire btnC_signal, btnU_signal, btnR_signal, btnL_signal, btnD_signal;
     wire clk20k, clk6p25m, clk20;
-    parameter MODE_MAX = 4'b0111; // change to actual number of modes later
+    parameter MODE_MAX = 4'b0110; // change to actual number of modes later
     wire [15:0] intensity_reg;
     
     // signals for mic
@@ -136,7 +136,7 @@ module Top_Student (
         .clk_samp(J_MIC3_Pin1), .sclk(J_MIC3_Pin4), .sample(mic_in));
    
     // Oled setup
-    Oled_Display oled_display (.clk(clk6p25m), .reset(btnC_signal & sw[15]), .pixel_data(oled_data),
+    Oled_Display oled_display (.clk(clk6p25m), .reset(btnC_signal), .pixel_data(oled_data),
         .cs(JB[0]), .sdin(JB[1]), .sclk(JB[3]), .d_cn(JB[4]), .resn(JB[5]), .vccen(JB[6]), .pmoden(JB[7]),
         .frame_begin(frame_begin), .pixel_index(pixel_index));
     Coord_Sys coord_sys (.pixel_index(pixel_index), .x(x), .y(y));
@@ -151,13 +151,13 @@ module Top_Student (
         .start(fft_done), .addr(freq_addr), .freq_mag(freq_mag), .freq_cnts(freq_cnts));
         
     // Frequency to colour module
-    /*(* use_dsp = "yes" *) Freq_To_Colour freq_to_colour (.clk(clk_in), .we(fft_out_rdy),
-        .start(fft_done), .addr(freq_addr), .freq_mag(freq_mag), .r(r), .g(g), .b(b));*/ 
+    (* use_dsp = "yes" *) Freq_To_Colour freq_to_colour (.clk(clk_in), .we(fft_out_rdy),
+        .start(fft_done), .addr(freq_addr), .freq_mag(freq_mag), .r(r), .g(g), .b(b));
         
     // Basic functionality module
     Vol_Indic vol_indic (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
             .an(an_basic), .x(x), .y(y), .intensity_reg(intensity_reg));
-    /*        
+
     // Vertical Bar Volume Indicator 
     Vol_Indic_Ver_Bar vol_indic_ver (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_vertical), .oled_data(oled_vertical), .seg(seg_vertical),
                 .an(an_vertical), .x(x), .y(y), .intensity_reg(intensity_reg));
@@ -168,15 +168,14 @@ module Top_Student (
                 
     // Vertical Bar Volume Indicator 
     Vol_Indic_Circle vol_indic_circle (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_circle), .oled_data(oled_circle), .seg(seg_circle),
-                .an(an_circle), .x(x), .y(y), .intensity_reg(intensity_reg));*/
+                .an(an_circle), .x(x), .y(y), .intensity_reg(intensity_reg));
     
     // Space Invader Game 
     Space_Invader space_invader (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_space), .oled_data(oled_space), .seg(seg_space),
                 .an(an_space), .x(x), .y(y), .intensity_reg(intensity_reg), .mouse_data(mouse_data), .mouse_clk(mouse_clk),
-                .freq_cnts(freq_cnts), .clk100m(clk_in), .btnC_signal(btnC_signal), .btnR_signal(btnR_signal),
+                .freq_cnts(freq_cnts), .clk100m(clk_in), .btnU_signal(btnU_signal), .btnR_signal(btnR_signal),
                 .btnL_signal(btnL_signal));
     
-    /*
     // Frequency indicator
     Freq_Indic freq_indic (.sw(sw), .oled_clk(clk6p25m), .freq_cnts(freq_cnts), .x(x), .y(y), 
                 .oled_data(oled_freq), .frame_begin(frame_begin));
@@ -186,7 +185,7 @@ module Top_Student (
                 .led(led_eagle), .oled_data(oled_eagle), .seg(seg_eagle), .an(an_eagle), 
                 .frame_begin(frame_begin), .clk20(clk20), .pixel_index(pixel_index),
                 .btnU_signal(btnU_signal), .btnR_signal(btnR_signal), .seg_clk(clk20k),
-                .btnL_signal(btnL_signal), .btnD_signal(btnD_signal));*/
+                .btnL_signal(btnL_signal), .btnD_signal(btnD_signal));
            
     // Multiplexer to select output from chosen module
     //
@@ -198,8 +197,8 @@ module Top_Student (
             4'b0001: begin
                 led = led_eagle;
                 oled_data = oled_freq;
-                seg = led_eagle;
-                an = led_eagle;
+                seg = seg_eagle;
+                an = an_eagle;
                 dp = 1'b1;
             end
             4'b0010: begin

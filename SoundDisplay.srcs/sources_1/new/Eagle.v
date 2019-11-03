@@ -26,7 +26,7 @@ module Eagle(
     input clk20,
     input frame_begin,
     input [4:0] r,
-    input [5:0] g,
+    input [4:0] g,
     input [4:0] b,
     input [15:0] sw, //set zoom level
     input [12:0] pixel_index,
@@ -47,7 +47,7 @@ module Eagle(
     
     parameter SEG_H = 7'b0001001;
     parameter SEG_I = 7'b1001111;
-    parameter SEG_G = 7'b0000100;
+    parameter SEG_G = 7'b0010000;
     parameter SEG_M = 7'b1101010;
     parameter SEG_E = 7'b0000110;
     parameter SEG_D = 7'b0100001;

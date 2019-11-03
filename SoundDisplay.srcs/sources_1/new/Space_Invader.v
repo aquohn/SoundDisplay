@@ -56,7 +56,7 @@ module Space_Invader(
     input [15:0] intensity_reg,
     input [6:0] x,
     input [5:0] y,
-    input btnC_signal,
+    input btnU_signal,
     input btnR_signal,
     input btnL_signal,
     input mouse_data,
@@ -140,7 +140,7 @@ for (i = 0; i < 15; i = i + 1) begin
     assign freq_params[i] = freq_cnts[30 * (i + 1) - 13 -: 6];
 end
 
-reg btnC_pipe, btnR_pipe, btnL_pipe;
+reg btnU_pipe, btnR_pipe, btnL_pipe;
 
 for (i = 0; i < 5; i = i + 1) begin
     assign alien_x[i] = 11 + 18 * i;
@@ -256,11 +256,11 @@ always @(posedge oled_clk) begin : update_game
     alien_clk_reg <= alien_clk_pipe;
     game_clk_pipe <= game_clk;
     game_clk_reg <= game_clk_pipe;
-    btnC_pipe <= btnC_signal;
+    btnU_pipe <= btnU_signal;
     btnR_pipe <= btnR_signal;
     btnL_pipe <= btnL_signal;
     
-    if (btnC_signal & ~player_shot) begin
+    if (btnU_signal & ~player_shot) begin
         player_shot <= 1'b1;
         player_shot_x <= top_layer_left + 1;
     end
