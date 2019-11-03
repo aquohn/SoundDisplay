@@ -127,12 +127,13 @@ reg alien_clk_pipe, alien_clk_reg, game_clk_pipe, game_clk_reg;
 wire alien_clk_signal;
 wire game_clk_signal;
 
-reg player_cooldown = 1'b0;
+reg [16:0] player_cooldown = 17'd0;
 reg player_dead = 1'b0;
 reg player_shot = 1'b0;
 reg [6:0] player_shot_y;
 reg [6:0] player_shot_x;
 
+parameter COOLDOWN = 17'd97656;
 parameter ALIEN_THRESHOLD = 2'b11;
 wire [5:0] freq_params [0:14];
 genvar i;
@@ -293,7 +294,7 @@ always @(posedge oled_clk) begin : update_game
                         if (x <= alien_x[a] + 5 && x >= alien_x[a] - 5) begin
                             if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
-                                alien_cooldown[a] <= 1'b1;
+                                alien_cooldown[a] <= COOLDOWN;
                                 player_shot <= 1'b0;
                                 score <= score + 1;
                                 player_shot_y <= top_layer_up;
@@ -305,7 +306,7 @@ always @(posedge oled_clk) begin : update_game
                         if (x <= alien_x[a] + 4 && x >= alien_x[a] - 4) begin
                             if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
-                                alien_cooldown[a] <= 1'b1;
+                                alien_cooldown[a] <= COOLDOWN;
                                 player_shot <= 1'b0;
                                 score <= score + 1;
                                 player_shot_y <= top_layer_up;
@@ -317,7 +318,7 @@ always @(posedge oled_clk) begin : update_game
                         if (x <= alien_x[a] + 3 && x >= alien_x[a] - 3) begin
                             if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
-                                alien_cooldown[a] <= 1'b1;
+                                alien_cooldown[a] <= COOLDOWN;
                                 player_shot <= 1'b0;
                                 score <= score + 1;
                                 player_shot_y <= top_layer_up;
@@ -329,7 +330,7 @@ always @(posedge oled_clk) begin : update_game
                         if (x <= alien_x[a] + 2 && x >= alien_x[a] - 2) begin
                             if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
-                                alien_cooldown[a] <= 1'b1;
+                                alien_cooldown[a] <= COOLDOWN;
                                 player_shot <= 1'b0;
                                 score <= score + 1;
                                 player_shot_y <= top_layer_up;
@@ -341,7 +342,7 @@ always @(posedge oled_clk) begin : update_game
                         if (x <= alien_x[a] + 1 && x >= alien_x[a] - 1) begin
                             if (player_shot && x == player_shot_x && y == player_shot_y) begin
                                 alien_alive[a] <= 1'b0;
-                                alien_cooldown[a] <= 1'b1;
+                                alien_cooldown[a] <= COOLDOWN;
                                 player_shot <= 1'b0;
                                 score <= score + 1;
                                 player_shot_y <= top_layer_up;
@@ -354,18 +355,35 @@ always @(posedge oled_clk) begin : update_game
         end
     end
     
-    // draw player
-    if (y >= 3 && y <= 60 && x >= 3 && x <= 92 && ~player_dead) begin
-        if (x >= bottom_layer_left && x <= bottom_layer_right && y >= bottom_layer_up && y <= bottom_layer_down)begin
-            oled_data <= colour_mid;
+    if (~player_dead) begin
+        if (y >= 3 && y <= 60 && x >= 3 && x <= 92) begin // draw player 
+            if (x >= bottom_layer_left && x <= bottom_layer_right && y >= bottom_layer_up && y <= bottom_layer_down)begin
+                oled_data <= colour_mid;
+            end
+            if (x >= middle_layer_left && x <= middle_layer_right && y >= middle_layer_up && y <= bottom_layer_down) begin
+                oled_data <= colour_mid;
+            end
+            if(x >= top_layer_left && x <= top_layer_right && y >= top_layer_up && y <= bottom_layer_down) begin
+                oled_data <= colour_mid;
+            end
         end
-        if (x >= middle_layer_left && x <= middle_layer_right && y >= middle_layer_up && y <= bottom_layer_down) begin
-            oled_data <= colour_mid;
+        
+        if (btnR_signal & ~btnR_pipe) begin // update location
+            bottom_layer_left <= (bottom_layer_left >= 7'b1001111) ? 7'b1010010 : bottom_layer_left + 4; // move right
+            bottom_layer_right <= (bottom_layer_right >= 7'b1011001) ? 7'b1011100 : bottom_layer_right + 4;
+            middle_layer_left <= (middle_layer_left >= 7'b1010001) ? 7'b1010100 : middle_layer_left + 4;
+            middle_layer_right <= (middle_layer_right >= 7'b1010111) ? 7'b1011010 : middle_layer_right + 4;
+            top_layer_left <= (top_layer_left >= 7'b1010011) ? 7'b1010110 : top_layer_left + 4;
+            top_layer_right <= (top_layer_right >= 7'b1010101) ? 7'b1011000 : top_layer_right + 4;
+        end else if (btnL_signal & ~btnL_pipe) begin
+            bottom_layer_left <= (bottom_layer_left <= 7'b0000110) ? 7'b0000011 : bottom_layer_left - 4; // move left
+            bottom_layer_right <= (bottom_layer_right <= 7'b0010000) ? 7'b0001101 : bottom_layer_right - 4;
+            middle_layer_left <= (middle_layer_left <= 7'b0001000) ? 7'b0000101 : middle_layer_left - 4;
+            middle_layer_right <= (middle_layer_right <= 7'b0001110) ? 7'b0001011 : middle_layer_right - 4;
+            top_layer_left <= (top_layer_left <= 7'b0001010) ? 7'b0000111 : top_layer_left - 4;
+            top_layer_right <= (top_layer_right <= 7'b0001100) ? 7'b0001001 : top_layer_right - 4;
         end
-        if(x >= top_layer_left && x <= top_layer_right && y >= top_layer_up && y <= bottom_layer_down) begin
-            oled_data <= colour_mid;
-        end
-    end
+    end    
     
     // draw bullet
     if (player_shot && x >= player_shot_x - 1 && x <= player_shot_x + 1 
@@ -398,14 +416,17 @@ always @(posedge oled_clk) begin : update_game
         end
     end
     
+    // handle respawn
+    if (player_dead) begin
+        if (player_cooldown) begin
+            player_cooldown <= player_cooldown - 1;
+        end else begin
+            player_dead <= 1'b0;
+        end 
+    end
+    
     if (alien_clk_signal) begin // update alien behaviour
-        if (player_dead) begin
-            if (player_cooldown) begin
-                player_cooldown <= 1'b0;
-            end else begin
-                player_dead <= 1'b0;
-            end 
-        end
+        
     
         for (a = 0; a < 5; a = a + 1) begin
             if (alien_cooldown[a]) begin // reset cooldown
@@ -415,11 +436,11 @@ always @(posedge oled_clk) begin : update_game
     end
     
     for (a = 0; a < 5; a = a + 1) begin
-        if (~alien_cooldown[a]) begin //handicap for a == 2 (centre, high frequency)
+        if (alien_cooldown[a] == 17'd0) begin
             if (alien_alive[a]) begin // see if we will shoot
                 if ((freq_params[(3 * a)] > ALIEN_THRESHOLD) && ~alien_shot[a]) begin
                     alien_shot[a] <= 1'b1;
-                    alien_cooldown[a] <= 1'b1;
+                    alien_cooldown[a] <= COOLDOWN;
                 end
             end else begin // see if alien will respawn, and if so, see what colour he will be
                 if (freq_params[(3 * a) + 2] > ALIEN_THRESHOLD) begin
@@ -437,6 +458,8 @@ always @(posedge oled_clk) begin : update_game
                     end
                 end
             end
+        end else begin
+            alien_cooldown[a] <= alien_cooldown[a] - 1;
         end
     end
     
@@ -452,29 +475,12 @@ always @(posedge oled_clk) begin : update_game
                 alien_shot[a] <= 1'b0;
                 player_dead <= 1'b1;
                 score <= 4'd0;
-                player_cooldown <= 1'b1;
+                player_cooldown <= COOLDOWN;
             end else if (x >= alien_x[a] - 1 && x <= alien_x[a] + 1 
             && y >= alien_shot_y[a] - 1 && y <= alien_shot_y[a] + 1) begin // draw bullet
                 oled_data <= alien_colours[a];
             end
         end
-    end
-
-    // update position of player
-    if (btnR_signal & ~btnR_pipe) begin
-        bottom_layer_left <= (bottom_layer_left >= 7'b1001111) ? 7'b1010010 : bottom_layer_left + 4; // move right
-        bottom_layer_right <= (bottom_layer_right >= 7'b1011001) ? 7'b1011100 : bottom_layer_right + 4;
-        middle_layer_left <= (middle_layer_left >= 7'b1010001) ? 7'b1010100 : middle_layer_left + 4;
-        middle_layer_right <= (middle_layer_right >= 7'b1010111) ? 7'b1011010 : middle_layer_right + 4;
-        top_layer_left <= (top_layer_left >= 7'b1010011) ? 7'b1010110 : top_layer_left + 4;
-        top_layer_right <= (top_layer_right >= 7'b1010101) ? 7'b1011000 : top_layer_right + 4;
-    end else if (btnL_signal & ~btnL_pipe) begin
-        bottom_layer_left <= (bottom_layer_left <= 7'b0000110) ? 7'b0000011 : bottom_layer_left - 4; // move left
-        bottom_layer_right <= (bottom_layer_right <= 7'b0010000) ? 7'b0001101 : bottom_layer_right - 4;
-        middle_layer_left <= (middle_layer_left <= 7'b0001000) ? 7'b0000101 : middle_layer_left - 4;
-        middle_layer_right <= (middle_layer_right <= 7'b0001110) ? 7'b0001011 : middle_layer_right - 4;
-        top_layer_left <= (top_layer_left <= 7'b0001010) ? 7'b0000111 : top_layer_left - 4;
-        top_layer_right <= (top_layer_right <= 7'b0001100) ? 7'b0001001 : top_layer_right - 4;
     end
 end
 endmodule
