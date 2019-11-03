@@ -410,25 +410,29 @@ always @(posedge oled_clk) begin : update_game
         for (a = 0; a < 5; a = a + 1) begin
             if (alien_cooldown[a]) begin // reset cooldown
                 alien_cooldown[a] <= 1'b0;
-            end else begin // handicap for a == 2 (high frequency)
-                if (alien_alive[a]) begin // see if we will shoot
-                    if ((freq_params[(3 * a)] > ALIEN_THRESHOLD || (freq_params[6] > 0 && a == 2)) && ~alien_shot[a]) begin
-                        alien_shot[a] <= 1'b1;
-                    end
-                end else begin // see if alien will respawn, and if so, see what colour he will be
-                    if (freq_params[(3 * a) + 2] > ALIEN_THRESHOLD || (freq_params[8] > 0 && a == 2)) begin
-                        alien_alive[a] <= 1'b1;
-                        if (freq_params[(3 * a) + 1] > 48) begin
-                            alien_colours[a] <= colour_high;
-                        end else if (freq_params[(3 * a) + 1] > 36) begin
-                            alien_colours[a] <= colour_mid_high;
-                        end else if (freq_params[(3 * a) + 1] > 24) begin
-                            alien_colours[a] <= colour_mid;
-                        end else if (freq_params[(3 * a) + 1] > 12) begin
-                            alien_colours[a] <= colour_mid_mid;
-                        end else begin
-                            alien_colours[a] <= colour_low;
-                        end
+            end
+        end
+    end
+    
+    for (a = 0; a < 5; a = a + 1) begin
+        if (~alien_cooldown[a]) begin //handicap for a == 2 (centre, high frequency)
+            if (alien_alive[a]) begin // see if we will shoot
+                if ((freq_params[(3 * a)] > ALIEN_THRESHOLD || (freq_params[6] > 0 && a == 2)) && ~alien_shot[a]) begin
+                    alien_shot[a] <= 1'b1;
+                end
+            end else begin // see if alien will respawn, and if so, see what colour he will be
+                if (freq_params[(3 * a) + 2] > ALIEN_THRESHOLD || (freq_params[8] > 0 && a == 2)) begin
+                    alien_alive[a] <= 1'b1;
+                    if (freq_params[(3 * a) + 1] > 48) begin
+                        alien_colours[a] <= colour_high;
+                    end else if (freq_params[(3 * a) + 1] > 36) begin
+                        alien_colours[a] <= colour_mid_high;
+                    end else if (freq_params[(3 * a) + 1] > 24) begin
+                        alien_colours[a] <= colour_mid;
+                    end else if (freq_params[(3 * a) + 1] > 12) begin
+                        alien_colours[a] <= colour_mid_mid;
+                    end else begin
+                        alien_colours[a] <= colour_low;
                     end
                 end
             end
