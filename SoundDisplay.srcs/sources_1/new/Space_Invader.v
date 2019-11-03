@@ -122,7 +122,7 @@ wire [6:0] alien_x [0:4]; //constant
 reg alien_shot [0:4];
 reg [5:0] alien_shot_y [0:4];
 reg alien_alive [0:4];
-reg alien_cooldown [0:4];
+reg [16:0] alien_cooldown [0:4];
 reg alien_clk_pipe, alien_clk_reg, game_clk_pipe, game_clk_reg;
 wire alien_clk_signal;
 wire game_clk_signal;
@@ -146,7 +146,7 @@ for (i = 0; i < 5; i = i + 1) begin
     assign alien_x[i] = 11 + 18 * i;
     initial begin
         alien_shot[i] = 1'b0;
-        alien_cooldown[i] = 1'b0;
+        alien_cooldown[i] = 17'd0;
         alien_alive[i] = 1'b0;
         alien_colours[i] = `OLED_RED;
         alien_shot_y[i] = ALIEN_Y;
@@ -417,11 +417,12 @@ always @(posedge oled_clk) begin : update_game
     for (a = 0; a < 5; a = a + 1) begin
         if (~alien_cooldown[a]) begin //handicap for a == 2 (centre, high frequency)
             if (alien_alive[a]) begin // see if we will shoot
-                if ((freq_params[(3 * a)] > ALIEN_THRESHOLD || (freq_params[6] > 0 && a == 2)) && ~alien_shot[a]) begin
+                if ((freq_params[(3 * a)] > ALIEN_THRESHOLD) && ~alien_shot[a]) begin
                     alien_shot[a] <= 1'b1;
+                    alien_cooldown[a] <= 1'b1;
                 end
             end else begin // see if alien will respawn, and if so, see what colour he will be
-                if (freq_params[(3 * a) + 2] > ALIEN_THRESHOLD || (freq_params[8] > 0 && a == 2)) begin
+                if (freq_params[(3 * a) + 2] > ALIEN_THRESHOLD) begin
                     alien_alive[a] <= 1'b1;
                     if (freq_params[(3 * a) + 1] > 48) begin
                         alien_colours[a] <= colour_high;
@@ -442,12 +443,12 @@ always @(posedge oled_clk) begin : update_game
     // handle alien bullets
     for (a = 0; a < 5; a = a + 1) begin
         if (alien_shot[a]) begin // check if player died
-            if ((alien_shot_y[a] > top_layer_up && alien_shot_y[a] < middle_layer_up 
-                && alien_x[a] < top_layer_right && alien_x[a] > top_layer_left)
-            || (alien_shot_y[a] > middle_layer_up && alien_shot_y[a] < bottom_layer_up
-            && alien_x[a] < middle_layer_right && alien_x[a] > middle_layer_left)
-            || (alien_shot_y[a] > bottom_layer_up && alien_shot_y[a] < bottom_layer_down
-            && alien_x[a] < bottom_layer_right && alien_x[a] > bottom_layer_left) && ~player_dead) begin
+            if ((alien_shot_y[a] >= top_layer_up && alien_shot_y[a] <= middle_layer_up 
+                && alien_x[a] <= top_layer_right && alien_x[a] >= top_layer_left)
+            || (alien_shot_y[a] >= middle_layer_up && alien_shot_y[a] <= bottom_layer_up
+            && alien_x[a] <= middle_layer_right && alien_x[a] >= middle_layer_left)
+            || (alien_shot_y[a] >= bottom_layer_up && alien_shot_y[a] <= bottom_layer_down
+            && alien_x[a] <= bottom_layer_right && alien_x[a] >= bottom_layer_left) && ~player_dead) begin
                 alien_shot[a] <= 1'b0;
                 player_dead <= 1'b1;
                 score <= 4'd0;
