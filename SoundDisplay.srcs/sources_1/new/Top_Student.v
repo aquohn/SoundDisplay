@@ -150,14 +150,14 @@ module Top_Student (
     (* use_dsp = "yes" *) Freq_Div freq_div (.clk(clk_in), .we(fft_out_rdy),
         .start(fft_done), .addr(freq_addr), .freq_mag(freq_mag), .freq_cnts(freq_cnts));
         
-    /* // Frequency to colour module
+    // Frequency to colour module
     (* use_dsp = "yes" *) Freq_To_Colour freq_to_colour (.clk(clk_in), .we(fft_out_rdy),
-        .start(fft_done), .addr(freq_addr), .freq_mag(freq_mag), .r(r), .g(g), .b(b));*/
+        .start(fft_done), .addr(freq_addr), .freq_mag(freq_mag), .r(r), .g(g), .b(b));
         
     // Basic functionality module
     Vol_Indic vol_indic (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_basic), .oled_data(oled_basic), .seg(seg_basic),
             .an(an_basic), .x(x), .y(y), .intensity_reg(intensity_reg));
-    /*
+    
     // Vertical Bar Volume Indicator 
     Vol_Indic_Ver_Bar vol_indic_ver (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_vertical), .oled_data(oled_vertical), .seg(seg_vertical),
                 .an(an_vertical), .x(x), .y(y), .intensity_reg(intensity_reg));
@@ -168,14 +168,14 @@ module Top_Student (
                 
     // Vertical Bar Volume Indicator 
     Vol_Indic_Circle vol_indic_circle (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_circle), .oled_data(oled_circle), .seg(seg_circle),
-                .an(an_circle), .x(x), .y(y), .intensity_reg(intensity_reg));*/
+                .an(an_circle), .x(x), .y(y), .intensity_reg(intensity_reg));
     
     // Space Invader Game 
     Space_Invader space_invader (.mic_clk(clk20k), .oled_clk(clk6p25m), .sw(sw), .mic_in(mic_in), .led(led_space), .oled_data(oled_space), .seg(seg_space),
                 .an(an_space), .x(x), .y(y), .intensity_reg(intensity_reg), .mouse_data(mouse_data), .mouse_clk(mouse_clk),
                 .freq_cnts(freq_cnts), .clk100m(clk_in), .btnU_signal(btnU_signal), .btnR_signal(btnR_signal),
                 .btnL_signal(btnL_signal));
-    /*
+    
     // Frequency indicator
     Freq_Indic freq_indic (.sw(sw), .oled_clk(clk6p25m), .freq_cnts(freq_cnts), .x(x), .y(y), 
                 .oled_data(oled_freq), .frame_begin(frame_begin));
@@ -185,7 +185,7 @@ module Top_Student (
                 .led(led_eagle), .oled_data(oled_eagle), .seg(seg_eagle), .an(an_eagle), 
                 .frame_begin(frame_begin), .clk20(clk20), .pixel_index(pixel_index),
                 .btnU_signal(btnU_signal), .btnR_signal(btnR_signal), .seg_clk(clk20k),
-                .btnL_signal(btnL_signal), .btnD_signal(btnD_signal));*/
+                .btnL_signal(btnL_signal), .btnD_signal(btnD_signal));
            
     // Multiplexer to select output from chosen module
     //
