@@ -31,8 +31,8 @@ module Freq_To_Colour(
     output reg [4:0] b = 5'b0
     );
     
-    parameter RED_LIMIT = 128;
-    parameter GREEN_LIMIT = 384;
+    parameter RED_LIMIT = 170;
+    parameter GREEN_LIMIT = 340;
     parameter BLUE_LIMIT = 512;
     
     reg [33:0] r_sum = 34'b0;
